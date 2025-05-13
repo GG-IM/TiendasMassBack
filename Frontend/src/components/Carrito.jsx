@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useCarrito } from '../context/carContext';
+import { useUsuario } from '../context/userContext';
+import { useNavigate } from 'react-router-dom';
 
 const Carrito = () => {
   const {
@@ -13,6 +15,17 @@ const Carrito = () => {
 
   const [mostrarCarrito, setMostrarCarrito] = useState(false);
   const toggleCarrito = () => setMostrarCarrito(!mostrarCarrito);
+
+  const { usuario } = useUsuario();
+  const navigate = useNavigate();
+  const handlePagar = () => {
+    if (!usuario) { 
+      alert('Debes iniciar sesión para realizar el pago.');
+      return;
+    }
+
+    navigate('/checkout'); // Redirige a la página de checkout
+  };
 
   return (
     <div>
@@ -54,6 +67,12 @@ const Carrito = () => {
           <button onClick={vaciarCarrito} style={styles.botonVaciar}>
             Vaciar Carrito
           </button>
+          {carrito.length > 0 && (
+            <button onClick={handlePagar} style={styles.botonPagar}>
+              Realizar Pago
+            </button>
+          )}
+
         </div>
       )}
     </div>
@@ -105,6 +124,18 @@ const styles = {
     cursor: 'pointer',
     width: '100%',
   },
+
+  botonPagar: {
+    backgroundColor: '#2196F3',
+    color: 'white',
+    padding: '10px',
+    border: 'none',
+    borderRadius: '8px',
+    marginTop: '10px',
+    cursor: 'pointer',
+    width: '100%',
+  },
+
 };
 
 export default Carrito;

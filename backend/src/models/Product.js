@@ -42,6 +42,19 @@ class Product {
     const [result] = await db.query('DELETE FROM productos WHERE id = ?', [id]);
     return result.affectedRows > 0;
   }
+
+  static async actualizarStock(id, nuevoStock) {
+    try {
+      const [result] = await db.query('UPDATE productos SET stock = ? WHERE id = ?', [nuevoStock, id]);
+      console.log(`Actualización de stock para el producto ${id}: ${nuevoStock}`);
+      if (result.affectedRows === 0) {
+        console.warn(`No se actualizó el stock para el producto con id ${id}`);
+      }
+    } catch (error) {
+      console.error('Error al actualizar el stock:', error);
+      throw error;  // Lanzar error para que el controlador lo maneje
+    }
+  }
 }
 
 module.exports = Product;

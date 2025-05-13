@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useUsuario } from '../../context/userContext';
 import './AuthStyles.css';
 
 function LoginForm({ switchToRegister }) {
   const navigate = useNavigate();
+  const { login } = useUsuario();
   const [formData, setFormData] = useState({
     email: '',
-    password: '',
+    contraseña: '', // ✅ Correcto
     remember: false
   });
-  
+
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData({
@@ -17,19 +19,44 @@ function LoginForm({ switchToRegister }) {
       [name]: type === 'checkbox' ? checked : value
     });
   };
-  
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Aquí iría la lógica de autenticación con un backend
-    console.log('Login con:', formData);
-    alert('Inicio de sesión exitoso (simulado)');
-    navigate('/'); // Redirige a la página principal después del login
+
+    try {
+      const response = await fetch('http://localhost:3000/api/usuarios/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: formData.email,
+          contraseña: formData.contraseña // ✅ Correcto
+        })
+      });
+
+      const data = await response.json();
+      console.log('response', data);
+
+      if (response.ok && data.email) {
+        login(data);
+
+        if (formData.remember) {
+          localStorage.setItem('usuario', JSON.stringify(data));
+        }
+
+        navigate('/');
+      } else {
+        alert(data.message || 'Error al iniciar sesión');
+      }
+    } catch (error) {
+      alert('Error de red al iniciar sesión');
+      console.error(error);
+    }
   };
-  
+
   return (
     <div className="form-container">
       <h2 className="form-title">Iniciar Sesión</h2>
-      
+
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="login-email">Correo electrónico</label>
@@ -43,20 +70,20 @@ function LoginForm({ switchToRegister }) {
             required
           />
         </div>
-        
+
         <div className="form-group">
           <label htmlFor="login-password">Contraseña</label>
           <input
             id="login-password"
             type="password"
-            name="password"
-            value={formData.password}
+            name="contraseña" // ✅ Debe coincidir con el backend
+            value={formData.contraseña}
             onChange={handleInputChange}
             placeholder="********"
             required
           />
         </div>
-        
+
         <div className="form-options">
           <div className="remember-me">
             <input
@@ -72,11 +99,11 @@ function LoginForm({ switchToRegister }) {
             <a href="#">¿Olvidaste tu contraseña?</a>
           </div>
         </div>
-        
+
         <button type="submit" className="submit-button">
           Iniciar Sesión
         </button>
-        
+
         <div className="form-footer">
           <p>
             ¿No tienes cuenta?

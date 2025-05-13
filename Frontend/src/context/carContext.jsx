@@ -1,16 +1,26 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useUsuario } from '../context/userContext';
 
 const CarritoContext = createContext();
 
-export const CarritoProvider = ({ children }) => {
-  const [carrito, setCarrito] = useState(() => {
-    const savedCart = localStorage.getItem('carrito');
-    return savedCart ? JSON.parse(savedCart) : [];
-  });
 
+export const CarritoProvider = ({ children }) => {
+  const { usuario } = useUsuario();
+  const [carrito, setCarrito] = useState([]);
+
+  // Cargar carrito del usuario al cambiar de usuario
   useEffect(() => {
-    localStorage.setItem('carrito', JSON.stringify(carrito));
-  }, [carrito]);
+    const savedCart = localStorage.getItem(`carrito_${usuario?.id || 'anonimo'}`);
+    setCarrito(savedCart ? JSON.parse(savedCart) : []);
+  }, [usuario]);
+
+  // Guardar carrito del usuario en localStorage
+  useEffect(() => {
+    if (usuario?.id) {
+      localStorage.setItem(`carrito_${usuario.id}`, JSON.stringify(carrito));
+    }
+  }, [carrito, usuario]);
+
 
   const agregarProducto = (producto) => {
     setCarrito(prev => {

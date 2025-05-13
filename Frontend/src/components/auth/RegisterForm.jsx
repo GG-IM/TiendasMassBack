@@ -17,17 +17,39 @@ function RegisterForm({ switchToLogin }) {
     });
   };
   
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Validación básica de contraseñas
-    if (formData.password !== formData.confirmPassword) {
-      alert('Las contraseñas no coinciden');
-      return;
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (formData.password !== formData.confirmPassword) {
+    alert('Las contraseñas no coinciden');
+    return;
+  }
+
+  try {
+    const response = await fetch('http://localhost:3000/api/usuarios/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nombre: formData.name,
+        email: formData.email,
+        contraseña: formData.password
+      })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      alert('Registro exitoso');
+      switchToLogin();
+    } else {
+      alert(data.message || 'Error al registrarse');
     }
-    // Aquí iría la lógica de registro con un backend
-    console.log('Registro con:', formData);
-    alert('Registro exitoso (simulado)');
-  };
+  } catch (error) {
+    console.error('Error en el registro:', error);
+    alert('Ocurrió un error al conectar con el servidor');
+  }
+};
+
   
   return (
     <div className="form-container">
