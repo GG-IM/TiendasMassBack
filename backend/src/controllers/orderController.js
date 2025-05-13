@@ -25,8 +25,8 @@ exports.crearPedido = async (req, res) => {
   try {
     console.log('Intentando crear el pedido');
 
-    // Crear el pedido
-    const pedidoId = await Pedido.crearPedido(usuarioId, total);
+    // Crear el pedido y establecer el estado a 'pendiente'
+    const pedidoId = await Pedido.crearPedido(usuarioId, total, 'pendiente');
     console.log('Pedido creado con ID:', pedidoId);
 
     // Actualizar el stock de cada producto
@@ -37,7 +37,7 @@ exports.crearPedido = async (req, res) => {
       console.log(`Verificando stock del producto ${productoId} para cantidad ${cantidadSolicitada}`);
 
       // Verificar si hay suficiente stock
-      const producto = await Producto.obtenerProductoPorId(productoId);
+      const producto = await Producto.findById(productoId);
       if (!producto) {
         console.error('Producto no encontrado:', productoId);
         return res.status(400).json({ error: 'Producto no encontrado' });

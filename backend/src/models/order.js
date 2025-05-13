@@ -2,7 +2,7 @@
 const db = require('../config/db');
 
 class Order {
-  static async crearPedido(usuarioId, total) {
+  static async crearPedido(usuarioId, total, estado = 'pendiente') {
     try {
       // Verificar que el usuario exista en la base de datos
       const [usuario] = await db.query('SELECT * FROM usuarios WHERE id = ?', [usuarioId]);
@@ -11,8 +11,8 @@ class Order {
       }
 
       const [result] = await db.query(
-        'INSERT INTO pedidos (usuario_id, total) VALUES (?, ?)',
-        [usuarioId, total]
+        'INSERT INTO pedidos (usuario_id, total, estado) VALUES (?, ?, ?)',
+        [usuarioId, total, estado]
       );
       return result.insertId;
     } catch (error) {
@@ -21,6 +21,7 @@ class Order {
     }
   }
 
+  // Método para obtener los pedidos
   static async obtenerPedidos(usuarioId) {
     let query = 'SELECT * FROM pedidos';
     let params = [];
@@ -39,5 +40,6 @@ class Order {
     }
   }
 }
+
 
 module.exports = Order;
