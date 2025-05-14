@@ -1,45 +1,13 @@
 import React from 'react';
-import Navbar from './Navbar'; // Ajusta la ruta si es necesario
-
+import Navbar from '../components/navbar/Navbar';
+import Carrito from '../components/car/Carrito';
 
 const Home = () => {
   return (
 
     
     <div className="home-page">
-      {/* Logo y navegación */}
-      <header className="navbar-principal container-fluid">
-        <div className="container d-flex justify-content-between align-items-center py-3">
-          <img
-            src="https://www.tiendasmass.com.pe/wp-content/themes/mass/img/mass_logo.webp"
-            alt="Logo"
-            style={{ maxWidth: 150 }}
-          />
-          <nav className="d-none d-lg-block">
-            <a href="/conoceme" className="mx-2">
-              Conóceme
-            </a>
-            <a href="/precios-mass" className="mx-2">
-              Precios Mass
-            </a>
-            <a href="/ubicame" className="mx-2">
-              Ubícame
-            </a>
-            <a href="/productos" className="mx-2">
-              Productos
-            </a>
-            <a
-              href="https://linktr.ee/MassTrabajaConmigo?utm_source=qr_code"
-              className="mx-2"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Trabaja conmigo
-            </a>
-          </nav>
-        </div>
-      </header>
-
+      <Navbar />
       {/* Banners principales */}
       <section className="banner-section text-center">
         <img className="img-fluid" src="https://www.tiendasmass.com.pe/wp-content/uploads/2023/10/BANNER-WEB.png" alt="Banner" />

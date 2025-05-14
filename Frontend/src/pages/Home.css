@@ -9,6 +9,6 @@
 
 .banner-section img {
   width: 100%;
-  max-height: 500px;
+  max-height: none;
   object-fit: cover;
 }
