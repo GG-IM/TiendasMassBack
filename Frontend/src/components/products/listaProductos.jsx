@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useCarrito } from '../context/carContext';
+import { useCarrito } from '../../context/carContext';
 import Carrito from './carrito'; // Importa el componente del carrito
 
 const ListaProductos = () => {

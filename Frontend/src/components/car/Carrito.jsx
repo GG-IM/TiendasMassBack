@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useCarrito } from '../context/carContext';
-import { useUsuario } from '../context/userContext';
+import { useCarrito } from '../../context/carContext';
+import { useUsuario } from '../../context/userContext';
 import { useNavigate } from 'react-router-dom';
 
 const Carrito = () => {
