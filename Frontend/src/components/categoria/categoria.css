@@ -1,0 +1,36 @@
+.sidebar-categoria {
+  position: fixed;
+  top: 100px;
+  left: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.15);
+  z-index: 1000;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.categoria-btn {
+  background: #eee;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 5px;
+  text-align: left;
+  transition: background-color 0.3s;
+  font-weight: 500;
+}
+
+.categoria-btn:hover {
+  background: #ddd;
+}
+
+.categoria-btn.selected {
+  background: #007bff;
+  color: white;
+  font-weight: bold;
+}

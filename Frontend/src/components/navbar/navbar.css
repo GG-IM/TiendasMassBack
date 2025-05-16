@@ -1,17 +1,19 @@
+/* Navbar Wrapper */
 .navbar-floating-wrapper {
   width: 100%;
   display: flex;
   justify-content: center;
-  position: relative;
-  margin-top: 16px;
+  position: absolute; /* Cambié a absolute para que el navbar se posicione sobre el contenido */
+  top: 0; /* Esto asegura que el navbar comience desde la parte superior de la página */
   z-index: 10;
   height: 75px;
 }
 
+/* Estilos de la barra de navegación */
 .navbar-mass {
   background: #FFD100;
   border-radius: 24px;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
   display: flex;
   align-items: center;
   padding: 0 18px;
@@ -20,6 +22,7 @@
   max-width: 1200px;
 }
 
+/* Fila de los elementos dentro del Navbar */
 .navbar-row {
   display: flex;
   align-items: center;
@@ -27,6 +30,7 @@
   justify-content: space-between;
 }
 
+/* Logo del Navbar */
 .navbar-logo {
   flex: 0 0 auto;
   display: flex;
@@ -38,6 +42,7 @@
   margin-right: 10px;
 }
 
+/* Centro del Navbar (buscador y links) */
 .navbar-center {
   flex: 0 1 600px;
   display: flex;
@@ -45,6 +50,7 @@
   margin-left: 10px;
 }
 
+/* Estilo de los links en el Navbar */
 .navbar-links {
   display: flex;
   justify-content: flex-start;
@@ -69,6 +75,7 @@
   color: #0056d6;
 }
 
+/* Estilo de la parte derecha del Navbar (carrito y login) */
 .navbar-right {
   flex: 0 0 auto;
   display: flex;
@@ -77,16 +84,18 @@
   margin-left: auto;
 }
 
+/* Acciones del Navbar en móviles */
 .navbar-mobile-actions {
   display: none;
 }
 
+/* Estilos del campo de búsqueda */
 .navbar-search {
   display: flex;
   align-items: center;
   background: #fff;
   border-radius: 16px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
   padding: 1px 14px 1px 16px;
   height: 38px;
   margin-left: auto;
@@ -115,6 +124,7 @@
   align-items: center;
 }
 
+/* Estilo del botón de íconos */
 .icon-btn {
   background: none;
   border: none;
@@ -130,6 +140,7 @@
   background: #e6e6e6;
 }
 
+/* Estilos para el botón de login */
 .login-btn {
   background: #0033a0;
   color: #fff;
@@ -149,6 +160,7 @@
   color: #FFD100;
 }
 
+/* Estilos del menú burger en móviles */
 .navbar-burger {
   display: none;
   flex-direction: column;
@@ -168,6 +180,7 @@
   transition: all 0.3s;
 }
 
+/* Media Query para pantallas pequeñas (móviles) */
 @media (max-width: 900px) {
   .navbar-floating-wrapper {
     margin-top: 6px;
@@ -212,7 +225,7 @@
     left: 0;
     width: 100vw;
     background: #FFD100;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.10);
     border-radius: 0 0 18px 18px;
     z-index: 15;
     padding: 18px 0 10px 0;
@@ -264,6 +277,7 @@
     margin-top: 6px;
     height: auto;
   }
+
   .navbar-mass {
     border-radius: 10px;
     padding: 2px 1vw;
@@ -272,18 +286,22 @@
     min-height: unset;
     height: auto;
   }
+
   .navbar-logo img {
     height: 24px;
     margin-right: 4px;
   }
+
   .navbar-search {
     height: 24px;
     padding: 1px 2px 1px 3px;
   }
+
   .navbar-search input {
     font-size: 0.85rem;
     width: 80px;
   }
+
   .login-btn {
     padding: 4px 10px;
     font-size: 0.85rem;
@@ -305,6 +323,7 @@
   .navbar-row .navbar-search {
     display: none !important;
   }
+
   .navbar-center .navbar-search {
     display: flex;
     width: 90vw;
@@ -314,7 +333,7 @@
     padding: 1px 14px 1px 16px;
     background: #fff;
     border-radius: 16px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
   }
 }
 
@@ -322,4 +341,4 @@
   .navbar-center .navbar-search {
     display: none !important;
   }
-} 
+}

@@ -1,13 +1,9 @@
 import React from 'react';
-import Navbar from '../components/navbar/Navbar';
-import Carrito from '../components/car/Carrito';
-
+import Carrito from '../components/car/Carrito'; // Si lo necesitas para el carrito, sigue importándolo
+import './Home.css';
 const Home = () => {
   return (
-
-    
     <div className="home-page">
-      <Navbar />
       {/* Banners principales */}
       <section className="banner-section text-center">
         <img className="img-fluid" src="https://www.tiendasmass.com.pe/wp-content/uploads/2023/10/BANNER-WEB.png" alt="Banner" />
@@ -48,11 +44,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-
-      {/* Pie de página */}
-      <footer className="text-center py-4 bg-light">
-        <p>© Tiendas Mass 2025 - Compañía Hard Discount S.A.C</p>
-      </footer>
     </div>
   );
 };
