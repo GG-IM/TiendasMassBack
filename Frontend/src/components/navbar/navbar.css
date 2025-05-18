@@ -1,11 +1,16 @@
+
 .navbar-floating-wrapper {
-  width: 100%;
+  position: fixed; /* Cambiado de relative a fixed */
+  top: 0;          /* Se fija en la parte superior */
+  left: 0;         /* Al borde izquierdo */
+  width: 100vw;    /* Para que ocupe todo el ancho de la ventana */
   display: flex;
   justify-content: center;
-  position: relative;
-  margin-top: 16px;
-  z-index: 10;
+  margin-top: 0;   /* Quitar margen superior para que pegue arriba */
+  z-index: 9999;   /* Alto para que esté encima de todo */
   height: 75px;
+
+  box-shadow: 0 2px 16px rgba(0,0,0,0.08); /* Opcional: sombra para destacar */
 }
 
 .navbar-mass {

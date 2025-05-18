@@ -1,10 +1,25 @@
-.home-page a {
-  text-decoration: none;
-  color: #333;
+@font-face {
+  font-family: 'Cocogoose Classic';
+  src: url('../assets/fonts/CocogooseClassic.woff2') format('woff2'),
+       url('../assets/fonts/CocogooseClassic.woff') format('woff'),
+       url('../assets/fonts/CocogooseClassic.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }
 
-.home-page h2 {
-  color: #d62828;
+body, html, #root {
+  font-family: 'Cocogoose Classic', Arial, sans-serif;
+  font-weight: 400;
+}
+
+h2 {
+  font-size: 44px;
+  font-weight: bold;
+  margin-block-start: 0.83em;
+  margin-block-end: 0.83em;
+  margin-inline-start: 0;
+  margin-inline-end: 0;
 }
 
 .banner-section img {
@@ -12,3 +27,59 @@
   max-height: 500px;
   object-fit: cover;
 }
+
+/* Fondo azul que ocupa todo el ancho */
+.bg-azul-personalizado {
+  background-color: #082EB7;
+  color: rgb(255, 255, 255);
+  width: 100%;
+}
+.bg-azul-personalizado strong {
+  color: #FFD100; /* amarillo para strong */
+}
+/* Fondo claro que ocupa todo el ancho */
+.bg-light-custom {
+  background-color: #d6f8f4;
+  width: 100%;
+}
+
+/* Bootstrap container ya centra y limita ancho */
+/* Por eso no agregamos max-width o margin al bg-azul-personalizado ni bg-light-custom */
+
+a {
+  text-decoration: none;
+  color: #333;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Opcional para que el botón resalte */
+.btn-light {
+  color: #082EB7;          /* texto azul */
+  background-color: #FFD100; /* fondo amarillo */
+  font-weight: bold;
+  border: none;           /* opcional, si quieres sin borde */
+}
+
+.btn-light:hover {
+  background-color: #e6c200; /* un amarillo más oscuro al hover */
+  color: #082EB7;             /* texto sigue azul */
+}
+@media (max-width: 767px) {
+  /* Centrar el botón como antes */
+  .btn.btn-light {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: fit-content;
+  }
+
+  /* Espacio extra encima de la imagen cuando está en móvil */
+  .col-md-6.text-center img {
+    margin-top: 20px; /* o ajusta el valor que quieras */
+  }
+}
+
+
