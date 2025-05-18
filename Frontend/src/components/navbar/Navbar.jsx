@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link  } from 'react-router-dom';
 import './Navbar.css'; // Importa el archivo CSS para estilos
 
 const Navbar = () => {
@@ -7,7 +7,7 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   const handleLoginClick = () => {
-    navigate('/auth');
+    navigate('/');
   };
 
   return (
@@ -44,11 +44,12 @@ const Navbar = () => {
             </button>
           </form>
           <ul className="navbar-links">
-            <li><a href="#inicio">Inicio</a></li>
-            <li><a href="#productos">Productos</a></li>
-            <li><a href="#ofertas">Ofertas</a></li>
-            <li><a href="#categorias">Categorias</a></li>
-            <li><a href="#contacto">Contacto</a></li>
+             {/* Usamos Link para navegación interna */}
+            <li><Link to="/">Inicio</Link></li> {/* Esto redirige correctamente a la página de inicio */}
+            <li><Link to="/categorias">Productos</Link></li> {/* Usar Link de React Router en lugar de href */}
+            <li><Link to="#ofertas">Ofertas</Link></li> {/* Usar Link de React Router */}
+            <li><Link to="/categorias">Categorías</Link></li> {/* Esto redirige correctamente a /categorias */}
+            <li><Link to="#contacto">Contacto</Link></li> 
           </ul>
           <div className="navbar-mobile-actions">
             <button className="icon-btn" aria-label="Carrito">

@@ -1,4 +1,5 @@
 import React from 'react';
+<<<<<<< HEAD
 import Navbar from '../components/navbar/Navbar'; // Solo una importación
 import Footer from '../components/footer/Footer'; // Importa el Footer (ajusta ruta si es necesario)
 import './Home.css';
@@ -10,6 +11,14 @@ const Home = () => {
       <Navbar />
 
       {/* Banner principal */}
+=======
+import Carrito from '../components/car/Carrito'; // Si lo necesitas para el carrito, sigue importándolo
+import './Home.css';
+const Home = () => {
+  return (
+    <div className="home-page">
+      {/* Banners principales */}
+>>>>>>> a0e4cf3d076efc239f6b8528a407da736a8a82c9
       <section className="banner-section text-center">
         <img
           className="img-fluid"
@@ -82,10 +91,14 @@ const Home = () => {
           </div>
         </div>
       </section>
+<<<<<<< HEAD
 
       {/* Footer al final */}
       <Footer />
     </>
+=======
+    </div>
+>>>>>>> a0e4cf3d076efc239f6b8528a407da736a8a82c9
   );
 };
 
