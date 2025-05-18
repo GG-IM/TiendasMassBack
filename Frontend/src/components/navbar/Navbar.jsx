@@ -46,7 +46,7 @@ const Navbar = () => {
           <ul className="navbar-links">
              {/* Usamos Link para navegación interna */}
             <li><Link to="/">Inicio</Link></li> {/* Esto redirige correctamente a la página de inicio */}
-            <li><Link to="#productos">Productos</Link></li> {/* Usar Link de React Router en lugar de href */}
+            <li><Link to="/categorias">Productos</Link></li> {/* Usar Link de React Router en lugar de href */}
             <li><Link to="#ofertas">Ofertas</Link></li> {/* Usar Link de React Router */}
             <li><Link to="/categorias">Categorías</Link></li> {/* Esto redirige correctamente a /categorias */}
             <li><Link to="#contacto">Contacto</Link></li> 

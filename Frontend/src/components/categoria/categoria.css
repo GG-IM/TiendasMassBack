@@ -1,36 +1,150 @@
-.sidebar-categoria {
-  position: fixed;
-  top: 100px;
-  left: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  background: #fff;
+/* categoria.css */
+
+.categoria-container {
+  width: 300px;
+  font-family: Arial, sans-serif;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background-color: white;
   padding: 10px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.15);
-  z-index: 1000;
-  max-height: 80vh;
+  box-sizing: border-box;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 10px;
+}
+
+.tab {
+  flex: 1;
+  padding: 10px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-weight: bold;
+  color: #333;
+  font-size: 14px;
+  transition: border-color 0.3s;
+}
+
+.tab.active {
+  border-color: #0033a0;
+  color: #0033a0;
+}
+
+/* Lista principal */
+.category-list {
+  max-height: 500px;
   overflow-y: auto;
 }
 
-.categoria-btn {
-  background: #eee;
-  border: none;
-  padding: 10px 20px;
-  cursor: pointer;
-  border-radius: 5px;
-  text-align: left;
-  transition: background-color 0.3s;
-  font-weight: 500;
+/* Item categoría */
+.category-item {
+  margin-bottom: 5px;
 }
 
-.categoria-btn:hover {
-  background: #ddd;
-}
-
-.categoria-btn.selected {
-  background: #007bff;
-  color: white;
+/* Encabezado categoría */
+.category-header {
+  display: flex;
+  justify-content: space-between;
   font-weight: bold;
+  color: #0033a0;
+  padding: 8px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  user-select: none;
+  border-left: 4px solid transparent;
+  transition: background-color 0.3s, border-left-color 0.3s;
 }
+
+.category-item.active .category-header {
+  border-left-color: #0033a0;
+  background-color: #f0f4ff;
+}
+
+/* Lista subcategorías */
+.subcategory-list {
+  list-style: none;
+  padding-left: 20px;
+  margin-top: 6px;
+  border-left: 1px solid #ccc;
+}
+
+/* Item subcategoría */
+.subcategory-item {
+  margin-bottom: 6px;
+}
+
+/* Header subcategoría */
+.subcategory-header {
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  font-weight: 600;
+  padding: 5px 6px;
+  border-radius: 3px;
+  border-left: 4px solid transparent;
+  transition: background-color 0.3s, border-left-color 0.3s;
+  color: #1a1a1a;
+}
+
+.subcategory-item.active .subcategory-header,
+.subcategory-header:hover {
+  border-left-color: #0056d6;
+  background-color: #e8f0ff;
+}
+
+/* Lista sub-subcategorías */
+.subsubcategory-list {
+  list-style: none;
+  padding-left: 20px;
+  margin-top: 4px;
+  border-left: 1px solid #ddd;
+}
+
+/* Item sub-subcategoría */
+.subsubcategory-item {
+  padding: 3px 6px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: background-color 0.2s;
+}
+
+.subsubcategory-item:hover {
+  background-color: #dbe9ff;
+}
+
+/* Icono toggle */
+.toggle-icon {
+  font-weight: bold;
+  font-size: 18px;
+  line-height: 1;
+  user-select: none;
+  padding-left: 6px;
+  color: #0033a0;
+}
+
+/* Contenido filtros (placeholder) */
+.filters-content {
+  padding: 10px;
+  font-style: italic;
+  color: #666;
+}
+.categoria-container {
+  position: sticky;
+  top: 75px; /* altura navbar */
+  left: 0;
+  width: 300px; /* ancho fijo */
+  max-height: calc(100vh - 75px);
+  overflow-y: auto;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 10px;
+  z-index: 20;
+}
+
