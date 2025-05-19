@@ -1,0 +1,51 @@
+.page-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #D6F8F4;
+}
+
+/* Header: navbar + banner */
+header {
+  flex-shrink: 0;
+}
+
+/* Layout principal: sidebar + productos */
+.layout-categorias-productos {
+  flex: 1;
+  display: flex;
+  gap: 24px;
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+/* Sidebar */
+.sidebar {
+  flex: 0 0 280px;
+}
+
+/* Main productos */
+.main-content {
+  flex: 1;
+}
+
+/* Footer fijo abajo */
+footer {
+  flex-shrink: 0;
+  margin-top: auto;
+}
+
+/* Responsive para móviles */
+@media (max-width: 768px) {
+  .layout-categorias-productos {
+    flex-direction: column;
+    margin: 10px;
+  }
+
+  .sidebar {
+    flex: none;
+    margin-bottom: 20px;
+  }
+}

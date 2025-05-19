@@ -6,7 +6,7 @@ class Product {
       `SELECT productos.*, categorias.nombre AS categoria
       FROM productos
       LEFT JOIN categorias ON productos.categoria_id = categorias.id`)
-       ;
+      ;
     return rows;
   }
 
@@ -16,7 +16,7 @@ class Product {
        FROM productos p 
        LEFT JOIN categorias c ON p.categoria_id = c.id 
        WHERE p.id = ?`, [id]
-      );
+    );
     return rows[0];
   }
 
@@ -29,7 +29,7 @@ class Product {
     return result.insertId;
   }
 
- static async update(id, productData) {
+  static async update(id, productData) {
     const { nombre, precio, descripcion, imagen, stock, estado, categoria_id } = productData;
     const [result] = await db.query(
       'UPDATE productos SET nombre = ?, precio = ?, descripcion = ?, imagen = ?, stock = ?, estado = ?, categoria_id = ? WHERE id = ?',
@@ -38,7 +38,7 @@ class Product {
     return result.affectedRows > 0;
   }
 
-   static async delete(id) {
+  static async delete(id) {
     const [result] = await db.query('DELETE FROM productos WHERE id = ?', [id]);
     return result.affectedRows > 0;
   }
@@ -54,6 +54,16 @@ class Product {
       console.error('Error al actualizar el stock:', error);
       throw error;  // Lanzar error para que el controlador lo maneje
     }
+  }
+  static async findByCategoryId(categoriaId) {
+    const [rows] = await db.query(
+      `SELECT productos.*, categorias.nombre AS categoria
+     FROM productos
+     LEFT JOIN categorias ON productos.categoria_id = categorias.id
+     WHERE categoria_id = ?`,
+      [categoriaId]
+    );
+    return rows;
   }
 }
 

@@ -1,52 +1,119 @@
-import React from 'react';
-import './productos.css';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useCarrito } from '../../context/carContext';
+import { useUsuario } from '../../context/userContext';
+import { useNavigate } from 'react-router-dom';
 
-const productosSimulados = [
-  {
-    id: 1,
-    nombre: 'Horno Microondas Oster POGGE3702',
-    imagen: 'Frontend\src\assets\imagenes\hola.png', // reemplaza con URL real
-    precioOnline: 279.00,
-    precioRegular: 309.00,
+const Productos = ({ categoriaId }) => {
+  const [productos, setProductos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [mensaje, setMensaje] = useState(null);
+  const { agregarProducto, carrito } = useCarrito();
+  const { usuario } = useUsuario();
+  const navigate = useNavigate();
 
-    etiquetas: ['Delivery Gratis'],
-  },
-  {
-    id: 2,
-    nombre: 'Cocina de Piso a Gas 60cm Silver Mabe CMP6014AG1',
-    imagen: 'Frontend\src\assets\imagenes\hola.png',
-    precioOnline: 679.00,
-    precioRegular: 909.00,
- 
-    etiquetas: ['Delivery Gratis'],
-  },
-  // agrega más productos aquí...
-];
+  useEffect(() => {
+    const fetchProductos = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const url = categoriaId
+          ? `http://localhost:3000/api/productos?categoriaId=${categoriaId}`
+          : 'http://localhost:3000/api/productos';
+        const res = await axios.get(url);
+        setProductos(res.data);
+      } catch (err) {
+        console.error('Error al obtener productos:', err);
+        setError('Error al cargar productos');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-const Productos = () => {
+    fetchProductos();
+  }, [categoriaId]);
+
+  const handleAgregar = (producto) => {
+    agregarProducto(producto);
+    setMensaje(`Agregado "${producto.nombre}" al carrito`);
+    setTimeout(() => setMensaje(null), 3000);
+  };
+
+  const handleRealizarPago = () => {
+    if (!usuario) {
+      alert('Debes iniciar sesión para realizar el pago.');
+      return;
+    }
+    navigate('/checkout');
+  };
+
+  if (loading) return <p>Cargando productos...</p>;
+  if (error) return <p style={{ color: 'red' }}>{error}</p>;
+  if (productos.length === 0) return <p>No hay productos para esta categoría.</p>;
+
   return (
     <div className="productos-container">
-      <h2>Resultado de búsqueda: {productosSimulados.length} PRODUCTOS</h2>
-      <div className="productos-grid">
-        {productosSimulados.map(producto => (
-          <div key={producto.id} className="producto-card">
-            {producto.descuento && (
-              <div className="producto-descuento">-{producto.descuento}%</div>
-            )}
+      <h2>Productos</h2>
+
+      {mensaje && (
+        <div
+          style={{
+            backgroundColor: '#4caf50',
+            color: 'white',
+            padding: '10px',
+            borderRadius: '8px',
+            marginBottom: '12px',
+            fontWeight: '600',
+            maxWidth: '300px',
+          }}
+        >
+          {mensaje}
+        </div>
+      )}
+
+      <ul className="productos-grid">
+        {productos.map((producto) => (
+          <li key={producto.id}>
             <img
-              src={producto.imagen}
+              src={producto.imagen || 'placeholder.jpg'}
               alt={producto.nombre}
-              className="producto-imagen"
             />
-            <div className="producto-nombre">{producto.nombre}</div>
-            <div className="producto-precios">
-              <span className="precio-online">S/ {producto.precioOnline.toFixed(2)}</span>
-              <span className="precio-regular">S/ {producto.precioRegular.toFixed(2)}</span>
-            </div>
-            <button className="producto-boton">AGREGAR</button>
-          </div>
+            <h3>{producto.nombre}</h3>
+            <p><strong>Precio:</strong> ${producto.precio}</p>
+            <p>{producto.descripcion}</p>
+            <button
+              onClick={() => handleAgregar(producto)}
+              className="btn-agregar-carrito"
+              aria-label={`Agregar ${producto.nombre} al carrito`}
+            >
+              Agregar al carrito
+            </button>
+          </li>
         ))}
-      </div>
+      </ul>
+
+      {carrito.length > 0 && (
+        <button
+          onClick={handleRealizarPago}
+          style={{
+            marginTop: '20px',
+            padding: '12px 20px',
+            fontSize: '1rem',
+            backgroundColor: '#0033a0',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            fontWeight: '600',
+            width: '100%',
+            maxWidth: '300px',
+          }}
+          aria-label="Realizar pago"
+        >
+          Realizar Pago
+        </button>
+      )}
     </div>
   );
 };

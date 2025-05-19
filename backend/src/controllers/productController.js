@@ -3,9 +3,18 @@ const Category = require('../models/category');
 
 exports.getAllProducts = async (req, res) => {
   try {
-    const products = await Product.findAll();
+    const categoriaId = req.query.categoriaId; // capturamos el query param
+    let products;
+
+    if (categoriaId) {
+      products = await Product.findByCategoryId(categoriaId);
+    } else {
+      products = await Product.findAll();
+    }
+
     res.json(products);
   } catch (error) {
+    console.error('Error en getAllProducts:', error);
     res.status(500).json({ message: error.message });
   }
 };
