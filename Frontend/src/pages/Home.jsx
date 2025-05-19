@@ -1,31 +1,15 @@
 import React from 'react';
-<<<<<<< HEAD
-import Navbar from '../components/navbar/Navbar'; // Solo una importación
-import Footer from '../components/footer/Footer'; // Importa el Footer (ajusta ruta si es necesario)
-import './Home.css';
-
-const Home = () => {
-  return (
-    <>
-      {/* Navbar */}
-      <Navbar />
-
-      {/* Banner principal */}
-=======
 import Carrito from '../components/car/Carrito'; // Si lo necesitas para el carrito, sigue importándolo
 import './Home.css';
+import Footer from '../components/footer/Footer'; // Asegúrate de que la ruta sea correcta
+import Navbar from '../components/navbar/Navbar'; // Asegúrate de que la ruta sea correcta
+import Banner from '../components/carousel/banner'; // Asegúrate de que la ruta sea correcta
 const Home = () => {
   return (
     <div className="home-page">
+      <Navbar/>
       {/* Banners principales */}
->>>>>>> a0e4cf3d076efc239f6b8528a407da736a8a82c9
-      <section className="banner-section text-center">
-        <img
-          className="img-fluid"
-          src="https://www.tiendasmass.com.pe/wp-content/uploads/2023/10/BANNER-WEB.png"
-          alt="Banner"
-        />
-      </section>
+      <Banner />
 
       {/* Texto destacado con fondo azul */}
       <section className="bg-azul-personalizado py-5">
@@ -91,14 +75,10 @@ const Home = () => {
           </div>
         </div>
       </section>
-<<<<<<< HEAD
 
       {/* Footer al final */}
       <Footer />
-    </>
-=======
     </div>
->>>>>>> a0e4cf3d076efc239f6b8528a407da736a8a82c9
   );
 };
 

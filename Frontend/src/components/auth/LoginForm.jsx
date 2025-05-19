@@ -8,7 +8,7 @@ function LoginForm({ switchToRegister }) {
   const { login } = useUsuario();
   const [formData, setFormData] = useState({
     email: '',
-    contraseña: '', // ✅ Correcto
+    contraseña: '', 
     remember: false
   });
 
@@ -29,7 +29,7 @@ function LoginForm({ switchToRegister }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: formData.email,
-          contraseña: formData.contraseña // ✅ Correcto
+          contraseña: formData.contraseña 
         })
       });
 

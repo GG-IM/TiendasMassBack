@@ -5,7 +5,7 @@ const productosSimulados = [
   {
     id: 1,
     nombre: 'Horno Microondas Oster POGGE3702',
-    imagen: 'https://example.com/horno1.jpg', // reemplaza con URL real
+    imagen: 'Frontend\src\assets\imagenes\hola.png', // reemplaza con URL real
     precioOnline: 279.00,
     precioRegular: 309.00,
 
@@ -14,7 +14,7 @@ const productosSimulados = [
   {
     id: 2,
     nombre: 'Cocina de Piso a Gas 60cm Silver Mabe CMP6014AG1',
-    imagen: 'https://example.com/cocina1.jpg',
+    imagen: 'Frontend\src\assets\imagenes\hola.png',
     precioOnline: 679.00,
     precioRegular: 909.00,
  

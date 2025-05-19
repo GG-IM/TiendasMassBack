@@ -1,27 +1,3 @@
-<<<<<<< HEAD
-@font-face {
-  font-family: 'Cocogoose Classic';
-  src: url('../assets/fonts/CocogooseClassic.woff2') format('woff2'),
-       url('../assets/fonts/CocogooseClassic.woff') format('woff'),
-       url('../assets/fonts/CocogooseClassic.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-body, html, #root {
-  font-family: 'Cocogoose Classic', Arial, sans-serif;
-  font-weight: 400;
-}
-
-h2 {
-  font-size: 44px;
-  font-weight: bold;
-  margin-block-start: 0.83em;
-  margin-block-end: 0.83em;
-  margin-inline-start: 0;
-  margin-inline-end: 0;
-=======
 /* Home.css */
 html, body {
   height: 100%; /* Asegura que el contenedor principal ocupe toda la altura de la pantalla */
@@ -32,7 +8,6 @@ html, body {
   background-color: #00bfff; /* Color de fondo celeste */
   min-height: 100vh; /* Hace que la altura mínima de la página sea igual a la altura de la pantalla */
   padding-top: 0; /* Añade algo de espacio en la parte superior si es necesario */
->>>>>>> a0e4cf3d076efc239f6b8528a407da736a8a82c9
 }
 
 .banner-section img {

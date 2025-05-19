@@ -1,76 +1,253 @@
 import React, { useState } from 'react';
-import { useNavigate, Link  } from 'react-router-dom';
-import './Navbar.css'; // Importa el archivo CSS para estilos
+import { useNavigate, Link } from 'react-router-dom';
+import { useUsuario} from '../../context/userContext';
+import { useCarrito } from '../../context/carContext';
+import Carrito from '../car/Carrito';
+
+import './Navbar.css';
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mostrarCarrito, setMostrarCarrito] = useState(false);
+
   const navigate = useNavigate();
 
+  const { usuario, logout } = useUsuario();
+  const { carrito } = useCarrito();
+
+  const isLoggedIn = Boolean(usuario);
+  const nombreUsuario = usuario?.nombre || 'Usuario';
+
+  // Total de items en el carrito
+  const totalItems = carrito.reduce((acc, producto) => acc + producto.cantidad, 0);
+
   const handleLoginClick = () => {
+    navigate('/login');
+  };
+
+  const handleLogout = () => {
+    logout();
+    setMenuOpen(false);
     navigate('/');
   };
 
+  const toggleMenu = () => setMenuOpen(!menuOpen);
+
+  const toggleCarrito = () => setMostrarCarrito(!mostrarCarrito);
+
   return (
     <div className={`navbar-floating-wrapper${menuOpen ? ' menu-open' : ''}`}>
-      {menuOpen && <div className="navbar-overlay" onClick={() => setMenuOpen(false)}></div>}
+      {menuOpen && (
+        <div className="navbar-overlay" onClick={() => setMenuOpen(false)}></div>
+      )}
       <nav className="navbar-mass">
         <div className="navbar-row">
           <div className="navbar-logo">
-            <img src="frontend/src/assets/logo.png" alt="logo" />
+            <Link to="/" onClick={() => setMenuOpen(false)}>
+              <img src="frontend/src/assets/logo.png" alt="logo" />
+            </Link>
           </div>
-          <form className="navbar-search" onSubmit={e => e.preventDefault()}>
-            <input type="text" placeholder="Buscar productos…" className="navbar-search-input" />
+
+          <form
+            className="navbar-search"
+            onSubmit={(e) => e.preventDefault()}
+            role="search"
+          >
+            <input
+              type="search"
+              placeholder="Buscar productos…"
+              className="navbar-search-input"
+              aria-label="Buscar productos"
+            />
             <button type="submit" aria-label="Buscar" className="navbar-search-btn">
-              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="9" cy="9" r="7" stroke="#0033a0" strokeWidth="2" />
-                <line x1="14.4142" y1="14" x2="18" y2="17.5858" stroke="#0033a0" strokeWidth="2" strokeLinecap="round" />
-              </svg>
+              <i className="bi bi-search" style={{ fontSize: '18px', color: '#0033a0' }}></i>
             </button>
           </form>
-          <button className="navbar-burger" onClick={() => setMenuOpen(!menuOpen)} aria-label="Abrir menú">
+
+          <button
+            className="navbar-burger"
+            onClick={toggleMenu}
+            aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
+          >
             <span className="burger-bar"></span>
             <span className="burger-bar"></span>
             <span className="burger-bar"></span>
           </button>
         </div>
+
         <div className={`navbar-center${menuOpen ? ' open' : ''}`}>
-          <form className="navbar-search" onSubmit={e => e.preventDefault()}>
-            <input type="text" placeholder="Buscar productos…" className="navbar-search-input" />
-            <button type="submit" aria-label="Buscar" className="navbar-search-btn">
-              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="9" cy="9" r="7" stroke="#0033a0" strokeWidth="2" />
-                <line x1="14.4142" y1="14" x2="18" y2="17.5858" stroke="#0033a0" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-            </button>
-          </form>
           <ul className="navbar-links">
-             {/* Usamos Link para navegación interna */}
-            <li><Link to="/">Inicio</Link></li> {/* Esto redirige correctamente a la página de inicio */}
-            <li><Link to="/categorias">Productos</Link></li> {/* Usar Link de React Router en lugar de href */}
-            <li><Link to="#ofertas">Ofertas</Link></li> {/* Usar Link de React Router */}
-            <li><Link to="/categorias">Categorías</Link></li> {/* Esto redirige correctamente a /categorias */}
-            <li><Link to="#contacto">Contacto</Link></li> 
+            <li>
+              <Link to="/" onClick={() => setMenuOpen(false)}>
+                Inicio
+              </Link>
+            </li>
+            <li>
+              <Link to="/ofertas" onClick={() => setMenuOpen(false)}>
+                Ofertas
+              </Link>
+            </li>
+            <li>
+              <Link to="/categorias" onClick={() => setMenuOpen(false)}>
+                Categorías
+              </Link>
+            </li>
+            <li>
+              <Link to="/contacto" onClick={() => setMenuOpen(false)}>
+                Contacto
+              </Link>
+            </li>
           </ul>
+
           <div className="navbar-mobile-actions">
-            <button className="icon-btn" aria-label="Carrito">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M7 20c.828 0 1.5.672 1.5 1.5S7.828 23 7 23s-1.5-.672-1.5-1.5S6.172 20 7 20zm10 0c.828 0 1.5.672 1.5 1.5S17.828 23 17 23s-1.5-.672-1.5-1.5S16.172 20 17 20zM7.16 17h9.69c.75 0 1.41-.41 1.75-1.03l3.24-5.88a1 1 0 0 0-.87-1.47H6.21l-.94-2H1v2h2l3.6 7.59c.16.28.45.41.76.41zM6.16 15l-1.1-2h12.45l-2.76 5H7.16z" fill="#0033a0"/>
-              </svg>
+            {/* Botón carrito móvil */}
+            <button
+              className="icon-btn"
+              aria-label="Carrito"
+              onClick={() => {
+                toggleCarrito();
+                setMenuOpen(false);
+              }}
+              style={{ position: 'relative' }}
+            >
+              <i className="bi bi-basket3-fill" style={{ fontSize: '22px', color: '#0033a0' }}></i>
+              {totalItems > 0 && (
+                <span
+                  style={{
+                    position: 'absolute',
+                    top: '-6px',
+                    right: '-6px',
+                    background: 'red',
+                    color: 'white',
+                    borderRadius: '50%',
+                    padding: '2px 6px',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    lineHeight: 1,
+                  }}
+                >
+                  {totalItems}
+                </span>
+              )}
             </button>
-            <button className="login-btn" onClick={handleLoginClick}>Iniciar sesión</button>
+
+            {!isLoggedIn ? (
+              <button className="login-btn" onClick={handleLoginClick}>
+                <i className="bi bi-person-fill" style={{ marginRight: '6px' }}></i>
+                Iniciar sesión
+              </button>
+            ) : (
+              <div className="dropdown">
+                <button
+                  className="btn btn-primary dropdown-toggle login-btn"
+                  type="button"
+                  id="dropdownMenuButton"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  {nombreUsuario}
+                </button>
+                <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                  <li>
+                    <Link className="dropdown-item" to="/perfil" onClick={() => setMenuOpen(false)}>
+                      Perfil
+                    </Link>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => {
+                        handleLogout();
+                      }}
+                    >
+                      Cerrar sesión
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            )}
           </div>
         </div>
-        <div className="navbar-right">
-          <button className="icon-btn" aria-label="Carrito">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M7 20c.828 0 1.5.672 1.5 1.5S7.828 23 7 23s-1.5-.672-1.5-1.5S6.172 20 7 20zm10 0c.828 0 1.5.672 1.5 1.5S17.828 23 17 23s-1.5-.672-1.5-1.5S16.172 20 17 20zM7.16 17h9.69c.75 0 1.41-.41 1.75-1.03l3.24-5.88a1 1 0 0 0-.87-1.47H6.21l-.94-2H1v2h2l3.6 7.59c.16.28.45.41.76.41zM6.16 15l-1.1-2h12.45l-2.76 5H7.16z" fill="#0033a0"/>
-            </svg>
+
+        <div className="navbar-right" style={{ position: 'relative' }}>
+          {/* Botón carrito desktop */}
+          <button
+            className="icon-btn"
+            aria-label="Carrito"
+            onClick={() => {
+              toggleCarrito();
+              setMenuOpen(false);
+            }}
+            style={{ position: 'relative' }}
+          >
+            <i className="bi bi-basket3-fill" style={{ fontSize: '22px', color: '#0033a0' }}></i>
+            {totalItems > 0 && (
+              <span
+                style={{
+                  position: 'absolute',
+                  top: '-6px',
+                  right: '-6px',
+                  background: 'red',
+                  color: 'white',
+                  borderRadius: '50%',
+                  padding: '2px 6px',
+                  fontSize: '12px',
+                  fontWeight: 'bold',
+                  lineHeight: 1,
+                }}
+              >
+                {totalItems}
+              </span>
+            )}
           </button>
-          <button className="login-btn" onClick={handleLoginClick}>Iniciar sesión</button>
+
+          {mostrarCarrito && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '40px',
+                right: '0',
+                zIndex: 20,
+              }}
+            >
+              <Carrito />
+            </div>
+          )}
+
+          {!isLoggedIn ? (
+            <button className="login-btn" onClick={handleLoginClick}>
+              <i className="bi bi-person-fill" style={{ marginRight: '6px' }}></i>
+              Iniciar sesión
+            </button>
+          ) : (
+            <div className="dropdown">
+              <button
+                className="btn btn-primary dropdown-toggle login-btn"
+                type="button"
+                id="dropdownMenuButtonDesktop"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                !Hola¡, {nombreUsuario}
+              </button>
+              <ul className="dropdown-menu" aria-labelledby="dropdownMenuButtonDesktop">
+                <li>
+                  <Link className="dropdown-item" to="/perfil">
+                    Perfil
+                  </Link>
+                </li>
+                <li>
+                  <button className="dropdown-item" onClick={handleLogout}>
+                    Cerrar sesión
+                  </button>
+                </li>
+              </ul>
+            </div>
+          )}
         </div>
       </nav>
     </div>
   );
 };
 
-export default Navbar; 
+export default Navbar;

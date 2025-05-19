@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useCarrito } from '../../context/carContext';
 import { useUsuario } from '../../context/userContext';
 import { useNavigate } from 'react-router-dom';
+import './car.css';  // Importa el CSS
 
 const Carrito = () => {
   const {
@@ -13,129 +14,77 @@ const Carrito = () => {
     disminuirCantidad,
   } = useCarrito();
 
-  const [mostrarCarrito, setMostrarCarrito] = useState(false);
-  const toggleCarrito = () => setMostrarCarrito(!mostrarCarrito);
-
   const { usuario } = useUsuario();
   const navigate = useNavigate();
+
   const handlePagar = () => {
-    if (!usuario) { 
+    if (!usuario) {
       alert('Debes iniciar sesión para realizar el pago.');
       return;
     }
-
-    navigate('/checkout'); // Redirige a la página de checkout
+    navigate('/checkout');
   };
 
   return (
-    <div>
-      <button onClick={toggleCarrito} style={styles.botonCarrito}>
-        🛒 Carrito ({carrito.reduce((acc, item) => acc + item.cantidad, 0)})
+    <div className="carrito-container">
+      <h3 className="carrito-titulo">Carrito</h3>
+      {carrito.length === 0 ? (
+        <p>El carrito está vacío</p>
+      ) : (
+        <ul className="carrito-lista">
+          {carrito.map((producto) => (
+            <li key={producto.id} className="carrito-producto-item">
+              <div className="info-producto">
+                <strong className="nombre-producto">{producto.nombre}</strong>
+                <p className="precio-producto">Precio: ${producto.precio}</p>
+                <p>Cantidad: {producto.cantidad}</p>
+                <p>Total: ${producto.precio * producto.cantidad}</p>
+              </div>
+              <div className="acciones-producto">
+                <button
+                  className="boton-cantidad"
+                  onClick={() => aumentarCantidad(producto.id)}
+                  aria-label="Aumentar cantidad"
+                >
+                  +
+                </button>
+                <button
+                  className="boton-cantidad"
+                  onClick={() => disminuirCantidad(producto.id)}
+                  aria-label="Disminuir cantidad"
+                >
+                  –
+                </button>
+                <button
+                  className="boton-eliminar"
+                  onClick={() => quitarProducto(producto.id)}
+                >
+                  Eliminar
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="total-general">
+        Total general: ${total.toFixed(2)}
+      </p>
+      <button
+        className="boton-vaciar"
+        onClick={vaciarCarrito}
+      >
+        Vaciar Carrito
       </button>
-
-      {mostrarCarrito && (
-        <div style={styles.carritoContainer}>
-          <h3>Carrito</h3>
-          {carrito.length === 0 ? (
-            <p>El carrito está vacío</p>
-          ) : (
-            <ul>
-              {carrito.map((producto) => (
-                <li key={producto.id} style={styles.productoItem}>
-                  <div>
-                    <strong>{producto.nombre}</strong>
-                    <p>Precio: ${producto.precio}</p>
-                    <p>Cantidad: {producto.cantidad}</p>
-                    <p>Total: ${producto.precio * producto.cantidad}</p>
-                  </div>
-                  <div>
-                    <button onClick={() => aumentarCantidad(producto.id)}>➕</button>
-                    <button onClick={() => disminuirCantidad(producto.id)}>➖</button>
-                    <button
-                      onClick={() => quitarProducto(producto.id)}
-                      style={styles.botonEliminar}
-                    >
-                      Eliminar
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-          <hr />
-          <p><strong>Total general: ${total}</strong></p>
-          <button onClick={vaciarCarrito} style={styles.botonVaciar}>
-            Vaciar Carrito
-          </button>
-          {carrito.length > 0 && (
-            <button onClick={handlePagar} style={styles.botonPagar}>
-              Realizar Pago
-            </button>
-          )}
-
-        </div>
+      {carrito.length > 0 && (
+        <button
+          className="boton-pagar"
+          onClick={handlePagar}
+        >
+          Realizar Pago
+        </button>
       )}
     </div>
   );
-};
-
-const styles = {
-  botonCarrito: {
-    padding: '10px 20px',
-    backgroundColor: '#FF5722',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    fontSize: '16px',
-  },
-  carritoContainer: {
-    position: 'absolute',
-    top: '50px',
-    right: '10px',
-    backgroundColor: 'white',
-    padding: '20px',
-    borderRadius: '8px',
-    width: '300px',
-    boxShadow: '0px 4px 10px rgba(0,0,0,0.2)',
-  },
-  productoItem: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    marginBottom: '10px',
-    borderBottom: '1px solid #ccc',
-    paddingBottom: '10px',
-  },
-  botonEliminar: {
-    backgroundColor: '#FF4081',
-    color: 'white',
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer',
-    marginTop: '5px',
-  },
-  botonVaciar: {
-    backgroundColor: '#4CAF50',
-    color: 'white',
-    padding: '10px',
-    border: 'none',
-    borderRadius: '8px',
-    marginTop: '10px',
-    cursor: 'pointer',
-    width: '100%',
-  },
-
-  botonPagar: {
-    backgroundColor: '#2196F3',
-    color: 'white',
-    padding: '10px',
-    border: 'none',
-    borderRadius: '8px',
-    marginTop: '10px',
-    cursor: 'pointer',
-    width: '100%',
-  },
-
 };
 
 export default Carrito;

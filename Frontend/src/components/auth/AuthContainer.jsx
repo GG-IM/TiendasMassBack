@@ -24,6 +24,7 @@ function AuthContainer() {
           <RegisterForm switchToLogin={switchView} />
         )}
       </div>
+    
     </div>
   );
 }

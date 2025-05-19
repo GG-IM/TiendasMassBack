@@ -1,6 +1,7 @@
 // src/components/categoria/categoria.jsx
 import React, { useState } from 'react';
 import './categoria.css';
+import Navbar from '../navbar/Navbar';
 
 const categoriasSimuladas = [
   {
@@ -137,6 +138,7 @@ const Categoria = ({ onSelect }) => {
 
   return (
     <div className="categoria-container">
+      <Navbar />
       <div className="tabs">
         <button
           className={`tab ${tabActiva === 'categorias' ? 'active' : ''}`}

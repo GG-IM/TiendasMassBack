@@ -1,0 +1,135 @@
+.carrito-container {
+  position: absolute;
+  top: 50px;
+  right: 10px;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  width: 320px;
+  box-shadow: 0 8px 24px rgba(0, 51, 160, 0.15);
+  color: #0033a0;
+  font-family: 'Montserrat', sans-serif;
+  z-index: 1000;
+}
+
+.carrito-titulo {
+  font-weight: 700;
+  font-size: 1.5rem;
+  margin-bottom: 16px;
+  border-bottom: 2px solid #FFD100;
+  padding-bottom: 8px;
+}
+
+.carrito-lista {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.carrito-producto-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  border-bottom: 1px solid #FFD100;
+  padding-bottom: 12px;
+}
+
+.info-producto {
+  max-width: 60%;
+}
+
+.nombre-producto {
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 4px;
+}
+
+.precio-producto {
+  margin-bottom: 4px;
+}
+
+.acciones-producto {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.boton-cantidad {
+  background-color: #FFD100;
+  border: none;
+  border-radius: 6px;
+  color: #0033a0;
+  font-weight: 700;
+  font-size: 1.2rem;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  line-height: 30px;
+  text-align: center;
+  transition: background-color 0.3s ease;
+}
+
+.boton-cantidad:hover {
+  background-color: #e6c700;
+}
+
+.boton-eliminar {
+  background-color: #e55353;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 6px 12px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.boton-eliminar:hover {
+  background-color: #c43c3c;
+}
+
+.total-general {
+  font-weight: 700;
+  font-size: 1.2rem;
+  margin-top: 12px;
+  border-top: 2px solid #FFD100;
+  padding-top: 12px;
+  color: #0033a0;
+}
+
+.boton-vaciar {
+  background-color: #FFD100;
+  color: #0033a0;
+  padding: 10px;
+  border: none;
+  border-radius: 12px;
+  margin-top: 14px;
+  cursor: pointer;
+  width: 100%;
+  font-weight: 700;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.boton-vaciar:hover {
+  background-color: #e6c700;
+}
+
+.boton-pagar {
+  background-color: #0033a0;
+  color: #FFD100;
+  padding: 10px;
+  border: none;
+  border-radius: 12px;
+  margin-top: 10px;
+  cursor: pointer;
+  width: 100%;
+  font-weight: 700;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.boton-pagar:hover {
+  background-color: #001a66;
+}

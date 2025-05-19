@@ -10,7 +10,6 @@ router.post('/', productController.createProduct);
 router.put('/:id', productController.updateProduct);
 router.delete('/:id', productController.deleteProduct);
 
-// Nueva ruta para obtener todas las categorías
-router.get('/categorias', categoryController.getAllCategories);
+
 
 module.exports = router;

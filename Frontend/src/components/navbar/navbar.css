@@ -1,29 +1,16 @@
-<<<<<<< HEAD
-
-=======
-/* Navbar Wrapper */
->>>>>>> a0e4cf3d076efc239f6b8528a407da736a8a82c9
 .navbar-floating-wrapper {
-  position: fixed; /* Cambiado de relative a fixed */
-  top: 0;          /* Se fija en la parte superior */
-  left: 0;         /* Al borde izquierdo */
-  width: 100vw;    /* Para que ocupe todo el ancho de la ventana */
+  position: fixed;
+  top: 20px;
+  left: 0;
+  width: 100%;
   display: flex;
   justify-content: center;
-<<<<<<< HEAD
-  margin-top: 0;   /* Quitar margen superior para que pegue arriba */
-  z-index: 9999;   /* Alto para que esté encima de todo */
-=======
-  position: absolute; /* Cambié a absolute para que el navbar se posicione sobre el contenido */
-  top: 0; /* Esto asegura que el navbar comience desde la parte superior de la página */
-  z-index: 10;
->>>>>>> a0e4cf3d076efc239f6b8528a407da736a8a82c9
+  margin-top: 0;
+  z-index: 9999;
   height: 75px;
-
-  box-shadow: 0 2px 16px rgba(0,0,0,0.08); /* Opcional: sombra para destacar */
 }
 
-/* Estilos de la barra de navegación */
+/* Estilos de la barra de navegación - Convertida en container responsive */
 .navbar-mass {
   background: #FFD100;
   border-radius: 24px;
@@ -32,8 +19,12 @@
   align-items: center;
   padding: 0 18px;
   height: 75px;
-  width: 97vw;
-  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  /* Ahora tiene comportamiento de container de Bootstrap */
+  padding-right: -20px;
+  padding-left: 15px;
+  box-sizing: border-box;
 }
 
 /* Fila de los elementos dentro del Navbar */
@@ -41,7 +32,8 @@
   display: flex;
   align-items: center;
   width: 100%;
-  justify-content: space-between;
+  justify-content: flex-start;
+  gap: 12px;
 }
 
 /* Logo del Navbar */
@@ -58,10 +50,12 @@
 
 /* Centro del Navbar (buscador y links) */
 .navbar-center {
-  flex: 0 1 600px;
+  flex: 0 1 400px;
+  min-width: 320px;
   display: flex;
   justify-content: flex-start;
   margin-left: 10px;
+  gap: 22px;
 }
 
 /* Estilo de los links en el Navbar */
@@ -69,10 +63,12 @@
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  gap: 22px;
+  gap: 25px;
   list-style: none;
   margin: 0;
+  margin-left: -100px;
   padding: 0;
+  white-space: nowrap;
 }
 
 .navbar-links li a {
@@ -94,8 +90,9 @@
   flex: 0 0 auto;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   margin-left: auto;
+  min-width: 120px;
 }
 
 /* Acciones del Navbar en móviles */
@@ -112,7 +109,8 @@
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
   padding: 1px 14px 1px 16px;
   height: 38px;
-  margin-left: auto;
+  width: auto;
+  margin-left: 10px;
 }
 
 .navbar-search input {
@@ -121,7 +119,7 @@
   background: transparent;
   font-size: 1rem;
   color: #0033a0;
-  width: 220px;
+  width: 210px;
   font-family: 'Montserrat', Arial, sans-serif;
 }
 
@@ -152,6 +150,7 @@
 
 .icon-btn:hover {
   background: #e6e6e6;
+ 
 }
 
 /* Estilos para el botón de login */
@@ -161,10 +160,10 @@
   border: none;
   border-radius: 16px;
   padding: 10px 22px;
-  font-size: 1rem;
+  font-size: 1.0rem;
   font-weight: 600;
   cursor: pointer;
-  font-family: 'Montserrat', Arial, sans-serif;
+  font-family: "Caveat", cursive;
   transition: background 0.2s, color 0.2s;
   margin-left: 4px;
 }
@@ -194,50 +193,230 @@
   transition: all 0.3s;
 }
 
-/* Media Query para pantallas pequeñas (móviles) */
-@media (max-width: 900px) {
+/* Overlay para cuando el menú está abierto */
+.navbar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 14;
+  opacity: 0;
+  animation: fadeIn 0.2s forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+/* =============================================
+   MEDIA QUERIES CON ENFOQUE BOOTSTRAP
+   ============================================= */
+
+/* Extra small - xs: <576px (comportamiento mobile) */
+@media (max-width: 575.98px) {
   .navbar-floating-wrapper {
     margin-top: 6px;
+    height: auto;
   }
 
   .navbar-mass {
-    border-radius: 16px;
+    border-radius: 10px;
+    padding: 2px 8px;
+    width: 95%;
+    gap: 0;
+    min-height: unset;
+    height: 55px;
+  }
+
+  .navbar-logo img {
+    height: 24px;
+    margin-right: 4px;
+  }
+
+  .navbar-search {
+    height: 24px;
+    padding: 1px 2px 1px 3px;
+  }
+
+  .navbar-search input {
+    font-size: 0.85rem;
+    width: 80px;
+  }
+
+  .login-btn {
+    padding: 4px 10px;
+    font-size: 0.85rem;
+  }
+  
+  /* Mostrar el burger menu */
+  .navbar-burger {
+    display: flex;
+    order: 3;
+    margin: 0 5px 0 auto;
+  }
+
+  /* Ocultar navbar-right */
+  .navbar-right {
+    display: none;
+  }
+  
+  /* Centro del navbar se convierte en menú desplegable */
+  .navbar-center {
+    display: none;
+    position: absolute;
+    top: 65px;
+    left: 0;
+    width: 100%;
+    background: #FFD100;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.10);
+    border-radius: 0 0 18px 18px;
+    z-index: 15;
+    padding: 18px 0 10px 0;
+    flex-direction: column;
+    align-items: center;
+    min-width: unset;
+  }
+
+  .navbar-center.open {
+    display: flex;
+  }
+
+  .navbar-links {
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    align-items: center;
+  }
+
+  .navbar-mobile-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    margin-top: 12px;
+  }
+  
+  /* Ajustes del buscador */
+  .navbar-row .navbar-search {
+    display: none !important;
+  }
+
+  .navbar-center .navbar-search {
+    display: flex;
+    width: 90%;
+    max-width: 280px;
+    margin: 0 auto 18px auto;
+    height: 32px;
+    padding: 1px 10px 1px 12px;
+  }
+}
+
+/* Small - sm: ≥576px y <768px */
+@media (min-width: 576px) and (max-width: 767.98px) {
+  .navbar-mass {
+    max-width: 540px; /* Bootstrap container en SM */
     height: 65px;
+    border-radius: 18px;
   }
 
   .navbar-logo img {
     height: 28px;
   }
-
-  .navbar-search {
-    margin: 0 auto;
-    width: 60vw;
-    min-width: 120px;
-    max-width: 260px;
-    height: 32px;
-    padding: 1px 8px 1px 10px;
-  }
-
-  .navbar-search input {
-    width: 140px;
-  }
-
+  
+  /* Mostrar el burger menu */
   .navbar-burger {
     display: flex;
     order: 3;
-    margin: 0 10px 0 0;
+    margin: 0 10px 0 auto;
   }
 
+  /* Ocultar navbar-right */
   .navbar-right {
     display: none;
   }
-
+  
+  /* Centro del navbar se convierte en menú desplegable */
   .navbar-center {
     display: none;
     position: absolute;
     top: 75px;
     left: 0;
-    width: 100vw;
+    width: 100%;
+    background: #FFD100;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.10);
+    border-radius: 0 0 18px 18px;
+    z-index: 15;
+    padding: 18px 0 10px 0;
+    flex-direction: column;
+    align-items: center;
+    min-width: unset;
+  }
+
+  .navbar-center.open {
+    display: flex;
+  }
+
+  .navbar-links {
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    align-items: center;
+  }
+
+  .navbar-mobile-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    margin-top: 12px;
+  }
+  
+  /* Ajustes del buscador */
+  .navbar-row .navbar-search {
+    display: none !important;
+  }
+
+  .navbar-center .navbar-search {
+    display: flex;
+    width: 90%;
+    max-width: 320px;
+    margin: 0 auto 18px auto;
+    height: 36px;
+  }
+}
+
+/* Medium - md: ≥768px y <992px */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .navbar-mass {
+    max-width: 720px; /* Bootstrap container en MD */
+    height: 70px;
+  }
+  
+  /* Mostrar el burger menu */
+  .navbar-burger {
+    display: flex;
+    order: 3;
+    margin: 0 10px 0 auto;
+  }
+
+  /* Ocultar navbar-right */
+  .navbar-right {
+    display: none;
+  }
+  
+  /* Centro del navbar se convierte en menú desplegable */
+  .navbar-center {
+    display: none;
+    position: absolute;
+    top: 80px;
+    left: 0;
+    width: 100%;
     background: #FFD100;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.10);
     border-radius: 0 0 18px 18px;
@@ -266,93 +445,156 @@
     width: 100%;
     margin-top: 12px;
   }
-}
-
-.navbar-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 14;
-  opacity: 0;
-  animation: fadeIn 0.2s forwards;
-}
-
-@keyframes fadeIn {
-  to {
-    opacity: 1;
-  }
-}
-
-@media (max-width: 600px) {
-  .navbar-floating-wrapper {
-    margin-top: 6px;
-    height: auto;
-  }
-
-  .navbar-mass {
-    border-radius: 10px;
-    padding: 2px 1vw;
-    width: 99vw;
-    gap: 0;
-    min-height: unset;
-    height: auto;
-  }
-
-  .navbar-logo img {
-    height: 24px;
-    margin-right: 4px;
-  }
-
+  
+  /* Ajustes del buscador */
   .navbar-search {
-    height: 24px;
-    padding: 1px 2px 1px 3px;
+    width: 180px;
   }
-
+  
   .navbar-search input {
-    font-size: 0.85rem;
-    width: 80px;
+    width: 140px;
   }
-
-  .login-btn {
-    padding: 4px 10px;
-    font-size: 0.85rem;
-  }
-}
-
-@media (min-width: 901px) {
-  .navbar-center .navbar-search {
-    display: none !important;
-  }
-}
-
-.navbar-row .navbar-search {
-  display: flex !important;
-  align-items: center;
-}
-
-@media (max-width: 900px) {
+  
   .navbar-row .navbar-search {
-    display: none !important;
+    display: flex !important;
   }
 
   .navbar-center .navbar-search {
-    display: flex;
-    width: 90vw;
-    max-width: 400px;
-    margin: 0 auto 18px auto;
-    height: 38px;
-    padding: 1px 14px 1px 16px;
-    background: #fff;
-    border-radius: 16px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+    display: none !important;
   }
 }
 
-@media (min-width: 901px) {
+/* Large - lg: ≥992px y <1200px */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .navbar-mass {
+    max-width: 960px; /* Bootstrap container en LG */
+    height: 70px;
+  }
+  
+  /* Mostrar navbar normal en desktop */
+  .navbar-burger {
+    display: none;
+  }
+  
+  .navbar-right {
+    display: flex;
+  }
+  
+  .navbar-center {
+    display: flex;
+    position: static;
+    flex-direction: row;
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+  }
+  
+  .navbar-links {
+    flex-direction: row;
+  }
+  
+  .navbar-mobile-actions {
+    display: none;
+  }
+  
+  /* Ajustes del buscador */
+  .navbar-search {
+    width: 200px;
+  }
+  
+  .navbar-search input {
+    width: 160px;
+  }
+  
+  .navbar-row .navbar-search {
+    display: flex !important;
+  }
+
   .navbar-center .navbar-search {
     display: none !important;
+  }
+}
+
+/* Extra large - xl: ≥1200px y <1400px */
+@media (min-width: 1200px) and (max-width: 1399.98px) {
+  .navbar-mass {
+    max-width: 1140px; /* Bootstrap container en XL */
+  }
+  
+  /* Mostrar navbar normal en desktop */
+  .navbar-burger {
+    display: none;
+  }
+  
+  .navbar-right {
+    display: flex;
+  }
+  
+  .navbar-center {
+    display: flex;
+    position: static;
+    flex-direction: row;
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+  }
+  
+  .navbar-links {
+    flex-direction: row;
+  }
+  
+  .navbar-mobile-actions {
+    display: none;
+  }
+  
+  /* Ajustes del buscador */
+  .navbar-search {
+    width: 240px;
+  }
+  
+  .navbar-search input {
+    width: 200px;
+  }
+}
+
+/* Extra extra large - xxl: ≥1400px */
+@media (min-width: 1400px) {
+  .navbar-mass {
+    max-width: 1320px; /* Bootstrap container en XXL */
+  }
+  
+  /* Mostrar navbar normal en desktop */
+  .navbar-burger {
+    display: none;
+  }
+  
+  .navbar-right {
+    display: flex;
+  }
+  
+  .navbar-center {
+    display: flex;
+    position: static;
+    flex-direction: row;
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+  }
+  
+  .navbar-links {
+    flex-direction: row;
+  }
+  
+  .navbar-mobile-actions {
+    display: none;
+  }
+  
+  /* Ajustes del buscador */
+  .navbar-search {
+    width: 400px;
+  }
+  
+  .navbar-search input {
+    width: 440px;
   }
 }
