@@ -31,7 +31,8 @@ const Carrito = () => {
       {carrito.length === 0 ? (
         <p>El carrito está vacío</p>
       ) : (
-        <ul className="carrito-lista">
+        // Contenedor scrollable
+        <ul className="carrito-lista carrito-lista-scroll">
           {carrito.map((producto) => (
             <li key={producto.id} className="carrito-producto-item">
               <div className="info-producto">

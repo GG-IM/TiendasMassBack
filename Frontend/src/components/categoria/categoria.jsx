@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import '../categoria/categoria.css'; // Asegúrate de que la ruta sea correcta
+import './categoria.css'; // Asume que está en la misma carpeta
 
 const Categoria = ({ onSelect }) => {
   const [categorias, setCategorias] = useState([]);
@@ -32,32 +32,30 @@ const Categoria = ({ onSelect }) => {
   };
 
   if (loading) return <p>Cargando categorías...</p>;
-  if (error) return <p style={{ color: 'red' }}>{error}</p>;
+  if (error) return <p className="error-text">{error}</p>;
 
   return (
     <div className="categoria-container">
-      <h3>Categorías</h3>
-      <ul style={{ listStyle: 'none', padding: 0 }}>
-        <li
-          style={{ cursor: 'pointer', fontWeight: categoriaActiva === null ? 'bold' : 'normal' }}
+      <h3 className="categoria-title">Categorías</h3>
+      <div className="categoria-list">
+        <button
+          className={`categoria-item ${categoriaActiva === null ? 'active' : ''}`}
           onClick={() => handleSelect(null)}
+          aria-pressed={categoriaActiva === null}
         >
           Todas
-        </li>
+        </button>
         {categorias.map((cat) => (
-          <li
+          <button
             key={cat.id}
-            style={{
-              cursor: 'pointer',
-              fontWeight: categoriaActiva?.id === cat.id ? 'bold' : 'normal',
-              padding: '5px 0',
-            }}
+            className={`categoria-item ${categoriaActiva?.id === cat.id ? 'active' : ''}`}
             onClick={() => handleSelect(cat)}
+            aria-pressed={categoriaActiva?.id === cat.id}
           >
             {cat.nombre}
-          </li>
+          </button>
         ))}
-      </ul>
+      </div>
     </div>
   );
 };

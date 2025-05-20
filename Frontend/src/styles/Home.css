@@ -3,9 +3,10 @@ html, body {
   height: 100%; /* Asegura que el contenedor principal ocupe toda la altura de la pantalla */
   margin: 0;
 }
-
+.banner-container {
+ background-color: #082EB7;
+}
 .home-page {
-  background-color: #00bfff; /* Color de fondo celeste */
   min-height: 100vh; /* Hace que la altura mínima de la página sea igual a la altura de la pantalla */
   padding-top: 0; /* Añade algo de espacio en la parte superior si es necesario */
 }
@@ -18,6 +19,7 @@ html, body {
 
 .container {
   max-width: 1200px; /* Limita el tamaño máximo del contenido */
+  
 }
 
 .text-center {
@@ -46,12 +48,24 @@ html, body {
     max-width: 100%;
   }
 }
+.blue-container {
+  background-color: #D6F8F4;
+
+}
+.blue-container h2 {
+ font-weight: 900;
+ margin: 0px 0px 8px;
+  font-size: 2.5rem;
+}
 
 /* Fondo azul que ocupa todo el ancho */
 .bg-azul-personalizado {
   background-color: #082EB7;
   color: rgb(255, 255, 255);
   width: 100%;
+  border-radius: 0px 0px 40px 40px ; /* Bordes redondeados */
+
+ 
 }
 .bg-azul-personalizado strong {
   color: #FFD100; /* amarillo para strong */
@@ -60,6 +74,16 @@ html, body {
 .bg-light-custom {
   background-color: #d6f8f4;
   width: 100%;
+}
+/*productos*/
+.sub {
+  color:#082EB7 !important;
+  font-weight: 900;
+ margin: 0px 0px 8px;
+  font-size: 2.5rem;
+}
+.bg-light-custom2{
+  background-color:#FFF8D9 !important; ;
 }
 
 /* Bootstrap container ya centra y limita ancho */
@@ -100,5 +124,10 @@ a:hover {
     margin-top: 20px; /* o ajusta el valor que quieras */
   }
 }
+
+
+
+
+
 
 

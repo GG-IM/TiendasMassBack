@@ -1,17 +1,21 @@
 import React from 'react';
-import './Home.css';
+import '../styles/Home.css'; // Asegúrate de que la ruta sea correcta
 import Footer from '../components/footer/footer'; // Asegúrate de que la ruta sea correcta
-import Navbar from '../components/navbar/navbar'; // Asegúrate de que la ruta sea correcta
-
+import Navbar from '../components/navbar/Navbar'; // Asegúrate de que la ruta sea correcta
+import ProductCarousel from '../components/carousel/productCarousel'; // Asegúrate de que la ruta sea correcta
+import WhatsAppButton from '../button/whatsappbutton'; // Asegúrate de que la ruta sea correcta
 import Banner from '../components/carousel/banner'; // Asegúrate de que la ruta sea correcta
 const Home = () => {
   return (
     <div className="home-page">
       <Navbar/>
       {/* Banners principales */}
+      <div className="banner-container">
       <Banner />
+      </div>
 
       {/* Texto destacado con fondo azul */}
+    <div className="blue-container">
       <section className="bg-azul-personalizado py-5">
         <div className="container">
           <div className="row align-items-center">
@@ -42,40 +46,32 @@ const Home = () => {
           </div>
         </div>
       </section>
+    </div>
 
       {/* Productos destacados con fondo claro */}
-      
+      <div className="productos-container">
       <section className="bg-light-custom py-5">
-        <div className="container">
-          <h2 className="text-center mb-4 text-primary">PRECIOS MÁS MASS</h2>
-          <div className="row text-center">
-            <div className="col-6 col-md-4 mb-4">
-              <img
-                src="https://www.tiendasmass.com.pe/wp-content/uploads/2025/04/Carrusel_Producto1.png"
-                alt="Producto"
-                className="img-fluid"
-              />
-              <p>S/ 3.70</p>
-            </div>
-            <div className="col-6 col-md-4 mb-4">
-              <img
-                src="https://www.tiendasmass.com.pe/wp-content/uploads/2025/04/Carrusel_Producto2.png"
-                alt="Producto"
-                className="img-fluid"
-              />
-              <p>S/ 4.60</p>
-            </div>
-            <div className="col-6 col-md-4 mb-4">
-              <img
-                src="https://www.tiendasmass.com.pe/wp-content/uploads/2025/04/Carrusel_Producto3.png"
-                alt="Producto"
-                className="img-fluid"
-              />
-              <p>S/ 1.00</p>
-            </div>
-          </div>
+        <div className="container-fluid px-5">
+          <h2 className="sub text-left mb-4 text-primary">PRECIOS MÁS MASS</h2>
+          <ProductCarousel/>
+          
         </div>
       </section>
+      </div>
+
+      {/* Productos destacados con fondo claro */}
+      <div className="productos-container">
+      <section className="bg-light-custom2 py-5">
+        <div className="container-fluid px-5">
+          <h2 className="sub text-left mb-4 text-primary">MENOR PRECIO, MASS CALIDAD</h2>
+          <ProductCarousel/>
+          
+        </div>
+      </section>
+      </div>
+      {/* ubicame */}
+      <WhatsAppButton/>
+      
 
       {/* Footer al final */}
       <Footer />
