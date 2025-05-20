@@ -1,8 +1,8 @@
 import React from 'react';
-import Carrito from '../components/car/Carrito'; // Si lo necesitas para el carrito, sigue importándolo
 import './Home.css';
 import Footer from '../components/footer/footer'; // Asegúrate de que la ruta sea correcta
 import Navbar from '../components/navbar/navbar'; // Asegúrate de que la ruta sea correcta
+
 import Banner from '../components/carousel/banner'; // Asegúrate de que la ruta sea correcta
 const Home = () => {
   return (
@@ -44,6 +44,7 @@ const Home = () => {
       </section>
 
       {/* Productos destacados con fondo claro */}
+      
       <section className="bg-light-custom py-5">
         <div className="container">
           <h2 className="text-center mb-4 text-primary">PRECIOS MÁS MASS</h2>

@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useCarrito } from '../../context/carContext';
 import { useUsuario } from '../../context/userContext';
 import { useNavigate } from 'react-router-dom';
+import ProductCard from './productCard';
 
 const Productos = ({ categoriaId }) => {
   const [productos, setProductos] = useState([]);
@@ -34,9 +35,9 @@ const Productos = ({ categoriaId }) => {
     fetchProductos();
   }, [categoriaId]);
 
-  const handleAgregar = (producto) => {
-    agregarProducto(producto);
-    setMensaje(`Agregado "${producto.nombre}" al carrito`);
+  const handleAgregar = (productoConCantidad) => {
+    agregarProducto(productoConCantidad);
+    setMensaje(`Agregado "${productoConCantidad.nombre}" al carrito`);
     setTimeout(() => setMensaje(null), 3000);
   };
 
@@ -72,26 +73,22 @@ const Productos = ({ categoriaId }) => {
         </div>
       )}
 
-      <ul className="productos-grid">
+      <div
+        className="productos-grid"
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill,minmax(250px,1fr))',
+          gap: '1.5rem',
+        }}
+      >
         {productos.map((producto) => (
-          <li key={producto.id}>
-            <img
-              src={producto.imagen || 'placeholder.jpg'}
-              alt={producto.nombre}
-            />
-            <h3>{producto.nombre}</h3>
-            <p><strong>Precio:</strong> ${producto.precio}</p>
-            <p>{producto.descripcion}</p>
-            <button
-              onClick={() => handleAgregar(producto)}
-              className="btn-agregar-carrito"
-              aria-label={`Agregar ${producto.nombre} al carrito`}
-            >
-              Agregar al carrito
-            </button>
-          </li>
+          <ProductCard
+            key={producto.id}
+            producto={producto}
+            onAdd={handleAgregar}
+          />
         ))}
-      </ul>
+      </div>
 
       {carrito.length > 0 && (
         <button

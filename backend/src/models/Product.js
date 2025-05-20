@@ -20,14 +20,14 @@ class Product {
     return rows[0];
   }
 
-  static async create(productData) {
-    const { nombre, precio, descripcion, imagen, stock, estado, categoria_id } = productData;
-    const [result] = await db.query(
-      'INSERT INTO productos (nombre, precio, descripcion, imagen, stock, estado, categoria_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [nombre, precio, descripcion, imagen, stock, estado, categoria_id]
-    );
-    return result.insertId;
-  }
+ static async create(productData) {
+  const { nombre,marca, precio, descripcion, imagen, stock, estado, categoria_id } = productData;
+  const [result] = await db.query(
+    'INSERT INTO productos (nombre, marca, precio, descripcion, imagen, stock, estado, categoria_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+    [nombre,marca, precio, descripcion, imagen, stock, estado, categoria_id]
+  );
+  return result.insertId;
+}
 
   static async update(id, productData) {
     const { nombre, precio, descripcion, imagen, stock, estado, categoria_id } = productData;

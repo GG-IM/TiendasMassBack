@@ -1,51 +1,64 @@
-.page-container {
+.categorias-page {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  font-family: 'Segoe UI', sans-serif;
   background-color: #D6F8F4;
 }
 
-/* Header: navbar + banner */
-header {
-  flex-shrink: 0;
+.header {
+  background-color: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Layout principal: sidebar + productos */
-.layout-categorias-productos {
-  flex: 1;
-  display: flex;
-  gap: 24px;
+.layout-contenido {
   max-width: 1200px;
-  margin: 20px auto;
-  padding: 0 20px;
-  box-sizing: border-box;
+  width: 100%;
+  margin: 2rem auto;
+  padding: 0 1rem;
 }
 
-/* Sidebar */
-.sidebar {
-  flex: 0 0 280px;
+.layout-columnas {
+  display: flex;
+  gap: 2rem;
 }
 
-/* Main productos */
-.main-content {
+/* Sidebar de categorías */
+.sidebar-categorias {
+  width: 250px;
+  background-color: #D6F8F4;
+  padding: 1rem;
+  border-radius: 12px;
+  
+}
+
+.categorias-titulo {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: #2d3748;
+}
+
+/* Contenedor de productos */
+.productos-grid-container {
   flex: 1;
+  background-color: #D6F8F4;
+  padding: 1.5rem;
+  border-radius: 12px;
+  
 }
 
-/* Footer fijo abajo */
-footer {
-  flex-shrink: 0;
-  margin-top: auto;
-}
-
-/* Responsive para móviles */
+/* RESPONSIVE */
 @media (max-width: 768px) {
-  .layout-categorias-productos {
+  .layout-columnas {
     flex-direction: column;
-    margin: 10px;
   }
 
-  .sidebar {
-    flex: none;
-    margin-bottom: 20px;
+  .sidebar-categorias {
+    width: 100%;
+  }
+
+  .productos-grid-container {
+    padding: 1rem;
   }
 }

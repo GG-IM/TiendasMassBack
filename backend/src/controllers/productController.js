@@ -33,7 +33,7 @@ exports.getProductById = async (req, res) => {
 
 exports.createProduct = async (req, res) => {
   try {
-    const { nombre, precio, descripcion, imagen = '', stock = 0, estado = true, categoria_id } = req.body;
+    const { nombre, marca, precio, descripcion, stock = 0, estado = true, categoria_id } = req.body;
 
     // Validar si la categoría existe
     const category = await Category.findById(categoria_id);
@@ -41,9 +41,23 @@ exports.createProduct = async (req, res) => {
       return res.status(400).json({ message: 'Categoría no válida' });
     }
 
+    // Si hay imagen cargada, construir ruta; si no, dejar vacío
+    const imagen = req.file ? `uploads/productos/${req.file.filename}` : '';
+
     // Crear el producto
-    const productId = await Product.create({ nombre, precio, descripcion, imagen, stock, estado, categoria_id });
-    res.status(201).json({ id: productId, nombre, precio, descripcion, imagen, stock, estado, categoria_id });
+    const productId = await Product.create({ nombre, marca, precio, descripcion, imagen, stock, estado, categoria_id });
+
+    res.status(201).json({
+      id: productId,
+      nombre,
+      marca,
+      precio,
+      descripcion,
+      imagen,
+      stock,
+      estado,
+      categoria_id
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

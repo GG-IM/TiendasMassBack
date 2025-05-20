@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const productRoutes = require('./routes/productRoutes');
 const authRoutes = require('./routes/authRoutes');
 const orderRoutes = require('./routes/orderRoutes');
@@ -10,10 +11,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// 🔽 Línea clave para que el navegador pueda acceder a imágenes
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+
 app.use('/api/productos', productRoutes);
 app.use('/api/usuarios', authRoutes);
 app.use('/api/pedidos', orderRoutes);
 app.use('/api/categorias', categoryRoutes); 
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

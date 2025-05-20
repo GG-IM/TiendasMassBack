@@ -4,26 +4,30 @@ import Productos from '../components/productos/productos';
 import Navbar from '../components/navbar/navbar';
 import Footer from '../components/footer/footer';
 import Banner from '../components/carousel/banner';
-import '../styles/categorias.css'; // Ruta a estilos
+import '../styles/categorias.css';
 
 const Categorias = () => {
   const [categoriaActiva, setCategoriaActiva] = useState(null);
 
   return (
-    <div className="page-container">
-      <header>
+    <div className="categorias-page">
+      <header className="header">
         <Navbar />
         <Banner />
       </header>
 
-      <div className="layout-categorias-productos">
-        <aside className="sidebar">
-          <Categoria onSelect={setCategoriaActiva} />
-        </aside>
-        <main className="main-content">
-          <Productos categoriaId={categoriaActiva?.id} />
-        </main>
-      </div>
+      <main className="layout-contenido">
+        <div className="layout-columnas">
+          <aside className="sidebar-categorias">
+           
+            <Categoria onSelect={setCategoriaActiva} />
+          </aside>
+
+          <section className="productos-grid-container">
+            <Productos categoriaId={categoriaActiva?.id} />
+          </section>
+        </div>
+      </main>
 
       <Footer />
     </div>
