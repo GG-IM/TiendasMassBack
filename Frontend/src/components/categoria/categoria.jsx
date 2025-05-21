@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import './categoria.css'; // Asume que está en la misma carpeta
+import './categoria.css';
 
 const Categoria = ({ onSelect }) => {
   const [categorias, setCategorias] = useState([]);
@@ -14,7 +14,24 @@ const Categoria = ({ onSelect }) => {
       setError(null);
       try {
         const res = await axios.get('http://localhost:3000/api/categorias');
-        setCategorias(res.data);
+        // Sobrescribimos las imágenes con las que quieres
+        const categoriasConImagenes = res.data.map((cat, index) => {
+          const imagenes = [
+            'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat6.png',
+            'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat8.png',
+            'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat7.png',
+            'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat6.png',
+            'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat1-1.png',
+            'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat2.png',
+            'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat5.png',
+            'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat2.png',
+          ];
+          return {
+            ...cat,
+            imagen: imagenes[index] || '/api/placeholder/120/120',
+          };
+        });
+        setCategorias(categoriasConImagenes);
       } catch (err) {
         console.error('Error al obtener categorías:', err);
         setError('Error al cargar categorías');
@@ -31,32 +48,35 @@ const Categoria = ({ onSelect }) => {
     if (onSelect) onSelect(categoria);
   };
 
-  if (loading) return <p>Cargando categorías...</p>;
+  if (loading) return <p className="loading-text">Cargando categorías...</p>;
   if (error) return <p className="error-text">{error}</p>;
 
   return (
-    <div className="categoria-container">
-      <h3 className="categoria-title">Categorías</h3>
-      <div className="categoria-list">
-        <button
-          className={`categoria-item ${categoriaActiva === null ? 'active' : ''}`}
-          onClick={() => handleSelect(null)}
-          aria-pressed={categoriaActiva === null}
-        >
-          Todas
-        </button>
-        {categorias.map((cat) => (
-          <button
+    <>
+      <div className="categories-header">
+        <h1 className="categories-title">CATEGORÍAS</h1>
+      </div>
+
+      <div className="categories-grid">
+        {categorias.map(cat => (
+          <div
             key={cat.id}
-            className={`categoria-item ${categoriaActiva?.id === cat.id ? 'active' : ''}`}
+            className={`category-card ${categoriaActiva?.id === cat.id ? 'active' : ''}`}
             onClick={() => handleSelect(cat)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={e => { if (e.key === 'Enter') handleSelect(cat); }}
             aria-pressed={categoriaActiva?.id === cat.id}
           >
-            {cat.nombre}
-          </button>
+            <div className={`category-icon ${cat.claseColor || ''}`}>
+              <img src={cat.imagen} alt={cat.nombre} />
+            </div>
+            <h3 className="category-name">{cat.nombre.toUpperCase()}</h3>
+            <span className="category-count">{cat.cantidad} productos</span>
+          </div>
         ))}
       </div>
-    </div>
+    </>
   );
 };
 
