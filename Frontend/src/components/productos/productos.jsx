@@ -55,7 +55,7 @@ const Productos = ({ categoriaId }) => {
 
   return (
     <div className="productos-container">
-      <h2>Productos</h2>
+      
 
       {mensaje && (
         <div

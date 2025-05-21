@@ -17,14 +17,14 @@ const Categoria = ({ onSelect }) => {
         // Sobrescribimos las imágenes con las que quieres
         const categoriasConImagenes = res.data.map((cat, index) => {
           const imagenes = [
-            'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat6.png',
-            'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat8.png',
-            'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat7.png',
-            'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat6.png',
             'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat1-1.png',
             'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat2.png',
             'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat5.png',
-            'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat2.png',
+            'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat3.png',
+            'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat7.png',
+            'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat8.png',
+            'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat6.png',
+            'https://www.tiendasmass.com.pe/wp-content/uploads/2023/06/cat4.png',
           ];
           return {
             ...cat,

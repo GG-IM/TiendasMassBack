@@ -5,6 +5,7 @@ import Navbar from '../components/navbar/Navbar'; // Asegúrate de que la ruta s
 import ProductCarousel from '../components/carousel/productCarousel'; // Asegúrate de que la ruta sea correcta
 import WhatsAppButton from '../button/whatsappbutton'; // Asegúrate de que la ruta sea correcta
 import Banner from '../components/carousel/banner'; // Asegúrate de que la ruta sea correcta
+
 const Home = () => {
   return (
     <div className="home-page">

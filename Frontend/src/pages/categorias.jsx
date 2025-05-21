@@ -1,13 +1,20 @@
 import React, { useState } from 'react';
-import Categoria from '../components/categoria/categoria';
 import Productos from '../components/productos/productos';
-import Navbar from '../components/navbar/navbar';
+import Navbar from '../components/navbar/Navbar';
 import Footer from '../components/footer/footer';
 import Banner from '../components/carousel/banner';
 import '../styles/categorias.css';
 
+// Ajusta esto al nombre/case correcto de tu archivo:
+import CategoryCarousel from '../components/carousel/categoriacarousel';
+
 const Categorias = () => {
   const [categoriaActiva, setCategoriaActiva] = useState(null);
+
+  // ① Define el handler que pasa la categoría al estado
+  const handleSelectCategoria = (cat) => {
+    setCategoriaActiva(cat);
+  };
 
   return (
     <div className="categorias-page">
@@ -17,16 +24,17 @@ const Categorias = () => {
       </header>
 
       <main className="layout-contenido">
-        <div className="layout-columnas">
-          <aside className="sidebar-categorias">
-           
-            <Categoria onSelect={setCategoriaActiva} />
-          </aside>
+        {/* ② Pasa tu handler al carousel */}
+        <section className="categorias-grid-container">
+        <h2 className='sub'>CATEGORÍAS</h2>
+        <CategoryCarousel onSelect={handleSelectCategoria} />
+        </section>
+        <h2 className='sub'>PRODUCTOS</h2>
+        {/* Productos ahora filtrados por la categoría activa */}
+        <section className="productos-grid-container">
 
-          <section className="productos-grid-container">
-            <Productos categoriaId={categoriaActiva?.id} />
-          </section>
-        </div>
+          <Productos categoriaId={categoriaActiva?.id} />
+        </section>
       </main>
 
       <Footer />
