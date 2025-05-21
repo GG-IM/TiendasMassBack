@@ -37,7 +37,7 @@ const Productos = ({ categoriaId }) => {
 
   const handleAgregar = (productoConCantidad) => {
     agregarProducto(productoConCantidad);
-    setMensaje(`Agregado "${productoConCantidad.nombre}" al carrito`);
+   
     setTimeout(() => setMensaje(null), 3000);
   };
 
@@ -90,27 +90,9 @@ const Productos = ({ categoriaId }) => {
         ))}
       </div>
 
-      {carrito.length > 0 && (
-        <button
-          onClick={handleRealizarPago}
-          style={{
-            marginTop: '20px',
-            padding: '12px 20px',
-            fontSize: '1rem',
-            backgroundColor: '#0033a0',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontWeight: '600',
-            width: '100%',
-            maxWidth: '300px',
-          }}
-          aria-label="Realizar pago"
-        >
-          Realizar Pago
-        </button>
-      )}
+    
+       
+      
     </div>
   );
 };
