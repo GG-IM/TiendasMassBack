@@ -5,7 +5,7 @@
   --navbar-text-hover: #0056d6;
   --navbar-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
   --search-bg: #ffffff;
-  --button-bg: #0033a0;
+  --button-bg: #0033a0 ;
   --button-text: #ffffff;
   --button-hover: #001e5a;
   --button-text-hover: #FFD100;
@@ -191,7 +191,7 @@
 }
 
 .login-btn {
-  background: var(--button-bg);
+  background: var(--button-bg) !important;
   color: var(--button-text);
   border: none;
   border-radius: 16px;

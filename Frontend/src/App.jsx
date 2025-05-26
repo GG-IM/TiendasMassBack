@@ -6,6 +6,8 @@ import Categorias from './pages/categorias'; // Página de categorías
 import { CarritoProvider } from './context/carContext';
 import { UsuarioProvider } from '../src/context/userContext'; 
 import CheckoutPage from './pages/CheckoutPage';
+import UserProfile from './pages/perfil'; // Página de perfil de usuario
+
 import './App.css';
 
 function App() {
@@ -18,6 +20,8 @@ function App() {
             <Route path="/categorias" element={<Categorias />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/checkout" element={<CheckoutPage/>} />
+            <Route path="/perfil" element={<UserProfile/>} />
+            
           </Routes>
         </Router>
       </CarritoProvider>
