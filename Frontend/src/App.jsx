@@ -1,13 +1,13 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-
-import Home from './pages/Home'; // Página de inicio
-import LoginPage from './pages/LoginPage'; // Página de login
-import Categorias from './pages/categorias'; // Página de categorías
-import { CarritoProvider } from './context/carContext';
-import { UsuarioProvider } from '../src/context/userContext'; 
+import Home from './pages/Home';
+import LoginPage from './pages/LoginPage';
+import Categorias from './pages/categorias';
 import CheckoutPage from './pages/CheckoutPage';
-import UserProfile from './pages/perfil'; // Página de perfil de usuario
-
+import Contacto from './pages/contacto';
+import { CarritoProvider } from './context/carContext';
+import { UsuarioProvider } from './context/userContext';
+import React from 'react';
+import UserProfile from './pages/perfil'; 
 import './App.css';
 
 function App() {
@@ -19,9 +19,9 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/categorias" element={<Categorias />} />
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/checkout" element={<CheckoutPage/>} />
-            <Route path="/perfil" element={<UserProfile/>} />
-            
+            <Route path="/checkout" element={<CheckoutPage />} />
+            <Royte path="/perfil" element={<UserProfile />} /> 
+            <Route path="/contacto" element={<Contacto />} /> 
           </Routes>
         </Router>
       </CarritoProvider>
