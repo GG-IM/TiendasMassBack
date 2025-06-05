@@ -29,7 +29,7 @@ function LoginForm({ switchToRegister }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: formData.email,
-          contraseña: formData.contraseña 
+          password: formData.contraseña 
         })
       });
 

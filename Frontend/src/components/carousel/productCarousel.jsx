@@ -16,7 +16,7 @@ const ProductCarousel = () => {
   useEffect(() => {
     const fetchProductos = async () => {
       try {
-        const res = await axios.get('http://localhost:3000/api/productos');
+        const res = await axios.get('http://localhost:3000/api/products');
         setProductos(res.data);
       } catch (err) {
         setError('Error al cargar productos.');

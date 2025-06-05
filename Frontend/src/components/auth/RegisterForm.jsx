@@ -6,7 +6,8 @@ function RegisterForm({ switchToLogin }) {
     name: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    address: ''
   });
   
   const handleInputChange = (e) => {
@@ -32,7 +33,9 @@ function RegisterForm({ switchToLogin }) {
       body: JSON.stringify({
         nombre: formData.name,
         email: formData.email,
-        contraseña: formData.password
+        password: formData.password,
+        direccion: formData.address || ""
+       
       })
     });
 

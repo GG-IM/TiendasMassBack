@@ -29,7 +29,7 @@ const Contacto = () => {
             <li><strong>COSTOS BAJOS</strong></li>
             <li><strong>PRECIOS BAJOS SIEMPRE</strong></li>
           </ul>
-          <p>
+          <p className="txt-explicacion">
             Manteniendo siempre procesos simples y costos bajos, logro tener los mejores precios todos los días cerca de tu hogar.
             <br />
             ¡Pero eso no es todo! También me esfuerzo en mantener los precios en donde para asegurarte que yo tengo los mejores.

@@ -25,7 +25,7 @@ export default function ProductCard({ producto, onAdd }) {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="image-container"
-      style={{ backgroundColor: categoriaColors[producto.categoria_id] || '#5EEAD4' }}>
+      style={{ backgroundColor: categoriaColors[producto.categoria?.id] || '#5EEAD4' }}>
         <img
           src={`http://localhost:3000/${producto.imagen}`}
           alt={producto.nombre}

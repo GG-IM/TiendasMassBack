@@ -97,6 +97,9 @@ a {
 a:hover {
   text-decoration: underline;
 }
+.p{
+  color:#ffffff !important;
+}
 
 /* Opcional para que el botón resalte */
 .btn-light {

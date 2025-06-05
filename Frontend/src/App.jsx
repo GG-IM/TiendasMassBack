@@ -20,7 +20,7 @@ function App() {
             <Route path="/categorias" element={<Categorias />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
-            <Royte path="/perfil" element={<UserProfile />} /> 
+            <Route path="/perfil" element={<UserProfile />} /> 
             <Route path="/contacto" element={<Contacto />} /> 
           </Routes>
         </Router>
