@@ -42,6 +42,17 @@ export class ProductController {
     this.estadoRepository = AppDataSource.getRepository(Estado);
   }
 
+  // Función auxiliar para normalizar productos
+  private normalizeProduct = (product: Producto) => {
+    return {
+      ...product,
+      precio: Number(product.precio), // Asegurar que sea número
+      stock: Number(product.stock),   // Asegurar que sea número
+      categoria_id: product.categoria?.id,
+      estado_nombre: product.estado?.nombre
+    };
+  };
+
   public getAllProducts = async (req: Request, res: Response): Promise<void> => {
     try {
       const categoriaId = req.query.categoriaId as string;
@@ -58,7 +69,9 @@ export class ProductController {
         });
       }
 
-      res.json(products);
+      // Normalizar productos antes de enviar
+      const normalizedProducts = products.map(this.normalizeProduct);
+      res.json(normalizedProducts);
     } catch (error) {
       console.error('Error en getAllProducts:', error);
       res.status(500).json({ 
@@ -86,7 +99,9 @@ export class ProductController {
         return;
       }
 
-      res.json(product);
+      // Normalizar producto antes de enviar
+      const normalizedProduct = this.normalizeProduct(product);
+      res.json(normalizedProduct);
     } catch (error) {
       res.status(500).json({ 
         message: error instanceof Error ? error.message : 'Error interno del servidor' 
@@ -155,16 +170,19 @@ export class ProductController {
 
       const savedProduct = await this.productRepository.save(newProduct);
 
+      // Respuesta con tipos correctos
       res.status(201).json({
         id: savedProduct.id,
         nombre: savedProduct.nombre,
         marca: savedProduct.marca,
-        precio: savedProduct.precio,
+        precio: Number(savedProduct.precio), // Forzar como número
         descripcion: savedProduct.descripcion,
         imagen: savedProduct.imagen,
-        stock: savedProduct.stock,
+        stock: Number(savedProduct.stock),   // Forzar como número
         categoria_id: category.id,
-        estado: estadoEntity.nombre
+        categoria: category,
+        estado: estadoEntity,
+        estado_nombre: estadoEntity.nombre
       });
     } catch (error) {
       console.error('Error en createProduct:', error);
@@ -240,16 +258,19 @@ export class ProductController {
 
       const updatedProduct = await this.productRepository.save(existingProduct);
 
+      // Respuesta con tipos correctos
       res.json({
         id: updatedProduct.id,
         nombre: updatedProduct.nombre,
         marca: updatedProduct.marca,
-        precio: updatedProduct.precio,
+        precio: Number(updatedProduct.precio), // Forzar como número
         descripcion: updatedProduct.descripcion,
         imagen: updatedProduct.imagen,
-        stock: updatedProduct.stock,
+        stock: Number(updatedProduct.stock),   // Forzar como número
         categoria_id: updatedProduct.categoria.id,
-        estado: updatedProduct.estado.nombre
+        categoria: updatedProduct.categoria,
+        estado: updatedProduct.estado,
+        estado_nombre: updatedProduct.estado.nombre
       });
     } catch (error) {
       console.error('Error en updateProduct:', error);

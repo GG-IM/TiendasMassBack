@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
-// Agrega aquí todas tus entidades
+
 
 export const AppDataSource = new DataSource({
   type: "mysql",
@@ -9,7 +9,7 @@ export const AppDataSource = new DataSource({
   username: "root",
   password: "123456789",
   database: "tiendasmass",
-  synchronize: false,
+  synchronize:false,
   logging: true,
   entities: ["src/entities/**/*.ts"],
 });

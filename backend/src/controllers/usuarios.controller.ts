@@ -18,11 +18,40 @@ export const getAllUsuarios = async (req: Request, res: Response): Promise<void>
     res.status(500).json({ message: error.message });
   }
 };
+// Obtener usuario por ID
+export const getUsuarioById = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const usuario = await usuarioRepository.findOne({
+      where: { id: parseInt(id) },
+      relations: ['estado'],
+    });
+
+    if (!usuario) {
+      res.status(404).json({ message: 'Usuario no encontrado' });
+      return;
+    }
+
+    res.json({
+      id: usuario.id,
+      nombre: usuario.nombre,
+      email: usuario.email,
+      direccion: usuario.direccion,
+      telefono: usuario.telefono,
+      ciudad: usuario.ciudad,
+      codigoPostal: usuario.codigoPostal,
+      estado: usuario.estado.nombre,
+    });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 // Registrar nuevo usuario
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { nombre, email, password, direccion, estadoId } = req.body;
+    const { nombre, email, password, direccion, estadoId, telefono, ciudad, codigoPostal } = req.body;
+
 
     const usuarioExistente = await usuarioRepository.findOneBy({ email });
     if (usuarioExistente) {
@@ -44,7 +73,11 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       password: hashedPassword,
       direccion,
       estado,
+      telefono,
+      ciudad,
+      codigoPostal,
     });
+
 
     const usuarioGuardado = await usuarioRepository.save(nuevoUsuario);
 
@@ -52,8 +85,13 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       id: usuarioGuardado.id,
       nombre: usuarioGuardado.nombre,
       email: usuarioGuardado.email,
-      estado: usuarioGuardado.estado.nombre, // Ajusta esto según el campo real de Estado
+      direccion: usuarioGuardado.direccion,
+      telefono: usuarioGuardado.telefono,
+      ciudad: usuarioGuardado.ciudad,
+      codigoPostal: usuarioGuardado.codigoPostal,
+      estado: usuarioGuardado.estado.nombre,
     });
+
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
@@ -84,8 +122,64 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       id: usuario.id,
       nombre: usuario.nombre,
       email: usuario.email,
+      direccion: usuario.direccion,
+      telefono: usuario.telefono,
+      ciudad: usuario.ciudad,
+      codigoPostal: usuario.codigoPostal,
       estado: usuario.estado.nombre,
     });
+
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+// Actualizar 
+export const update = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { nombre, direccion, telefono, ciudad, codigoPostal, estadoId } = req.body;
+
+    const usuario = await usuarioRepository.findOne({
+      where: { id: parseInt(id, 10) },
+      relations: ['estado'],
+    });
+
+    if (!usuario) {
+      res.status(404).json({ message: 'Usuario no encontrado' });
+      return;
+    }
+
+    if (estadoId !== undefined) {
+      const estado = await estadoRepository.findOneBy({ id: estadoId });
+      if (!estado) {
+        res.status(400).json({ message: 'Estado no válido' });
+        return;
+      }
+      usuario.estado = estado;
+    }
+
+    if (nombre !== undefined) usuario.nombre = nombre;
+    if (direccion !== undefined) usuario.direccion = direccion;
+    if (telefono !== undefined) usuario.telefono = telefono;
+    if (ciudad !== undefined) usuario.ciudad = ciudad;
+    if (codigoPostal !== undefined) usuario.codigoPostal = codigoPostal;
+
+    const usuarioActualizado = await usuarioRepository.save(usuario);
+
+    res.json({
+      message: 'Perfil actualizado correctamente',
+      usuario: {
+        id: usuarioActualizado.id,
+        nombre: usuarioActualizado.nombre,
+        email: usuarioActualizado.email,
+        direccion: usuarioActualizado.direccion,
+        telefono: usuarioActualizado.telefono,
+        ciudad: usuarioActualizado.ciudad,
+        codigoPostal: usuarioActualizado.codigoPostal,
+        estado: usuarioActualizado.estado.nombre,
+      }
+    });
+
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }

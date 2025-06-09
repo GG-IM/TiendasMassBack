@@ -2,25 +2,32 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
   CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
-import { Usuario } from './Usuario.entity';
+import { Pedido } from './Pedidos.entity';
 
 @Entity('Metodos_Pago')
 export class MetodoPago {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Usuario, usuario => usuario.metodosPago, { onDelete: 'CASCADE' })
-  usuario: Usuario;
+  @Column({ length: 100, unique: true })
+  nombre: string; // Ej: "Tarjeta", "PayPal", "Transferencia"
 
-  @Column()
-  metodo: string;
+  @Column({ type: 'decimal', precision: 5, scale: 2, nullable: true })
+  comision: number | null; // porcentaje comisión si aplica
 
   @Column({ type: 'text', nullable: true })
-  detalles: string;
+  descripcion: string | null;
 
   @CreateDateColumn({ name: 'creado_en' })
   creadoEn: Date;
+
+  @UpdateDateColumn({ name: 'actualizado_en' })
+  actualizadoEn: Date;
+
+  @OneToMany(() => Pedido, pedido => pedido.metodoPago)
+  pedidos: Pedido[];
 }

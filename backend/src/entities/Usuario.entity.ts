@@ -4,6 +4,7 @@ import { Empleado } from "./Empleados.entity";
 import { Pedido } from "./Pedidos.entity";
 import { MetodoPago } from "./MetodoPago.entity";
 import { Reporte } from "./Reportes.entity";
+import { TarjetaUsuario } from './TarjetaUsuario.entity';
 
 @Entity("Usuarios")
 export class Usuario {
@@ -22,6 +23,16 @@ export class Usuario {
   @Column("text", { nullable: true })
   direccion: string;
 
+  @Column({ length: 20, nullable: true })
+  telefono: string;
+
+  @Column({ length: 100, nullable: true })
+  ciudad: string;
+
+  @Column({ length: 10, nullable: true })
+  codigoPostal: string;
+
+
   @ManyToOne(() => Estado, estado => estado.usuarios)
   estado: Estado;
 
@@ -37,9 +48,10 @@ export class Usuario {
   @OneToMany(() => Pedido, pedido => pedido.usuario)
   pedidos: Pedido[];
 
-  @OneToMany(() => MetodoPago, metodoPago => metodoPago.usuario)
-  metodosPago: MetodoPago[];
-
   @OneToMany(() => Reporte, reporte => reporte.usuario)
   reportes: Reporte[];
+
+  @OneToMany(() => TarjetaUsuario, tarjeta => tarjeta.usuario)
+  tarjetas: TarjetaUsuario[];
+
 }

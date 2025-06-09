@@ -5,6 +5,8 @@ import usuariosRoutes from './routes/usuarios.routes';
 import productRoutes from './routes/productos.routes';
 import categoriRoutes from './routes/categoria.routes';
 import { AppDataSource } from './config/data-source';
+import pedidoRoutes from './routes/pedidos.routes';
+import  MetodoPagoRoutes  from './routes/metodopago.routes';  
 
 
 const app = express();
@@ -22,6 +24,8 @@ app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 app.use('/api/usuarios', usuariosRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/categorias', categoriRoutes);
+app.use("/api/pedidos", pedidoRoutes); 
+app.use('/api/metodos-pago', MetodoPagoRoutes); // Asegúrate de que esta ruta esté definida correctamente
 
 // Conexión a la base de datos
 AppDataSource.initialize()

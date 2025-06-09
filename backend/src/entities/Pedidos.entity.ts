@@ -3,6 +3,8 @@ import { Usuario } from "./Usuario.entity";
 import { DetallePedido } from "./DetallePedido.entity";
 import { MetodoEnvio } from "./MetodoEnvio.entity";
 import { Reporte } from "./Reportes.entity";
+import { MetodoPago } from "./MetodoPago.entity";
+
 
 export enum EstadoPedido {
   PENDIENTE = "pendiente",
@@ -36,8 +38,6 @@ export class Pedido {
   @Column("decimal", { precision: 10, scale: 2 })
   montoTotal: number;
 
-  @Column({ length: 255, nullable: true })
-  metodoPago: string;
 
   @Column("text", { nullable: true })
   direccionEnvio: string;
@@ -55,6 +55,9 @@ export class Pedido {
     name: "estado_pago",
   })
   estadoPago: EstadoPago;
+
+  @ManyToOne(() => MetodoPago, metodoPago => metodoPago.pedidos, { nullable: true })
+  metodoPago: MetodoPago;
 
   @ManyToOne(() => MetodoEnvio, metodoEnvio => metodoEnvio.pedidos, { nullable: true })
   shippingMethod: MetodoEnvio | null;

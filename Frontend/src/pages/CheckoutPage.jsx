@@ -1,11 +1,8 @@
-import React, { useState } from 'react';
-import Checkout from '../components/checkout/Checkout'; // ajusta la ruta si la carpeta se llama distinto
+import React, { useState, useCallback } from 'react';
+import Checkout from '../components/checkout/checkout';
 
 const CheckoutPage = () => {
-  // Paso activo (1 = Envío, 2 = Pago, 3 = Confirmación)
   const [activeStep, setActiveStep] = useState(1);
-
-  // Datos de formulario compartidos entre ShippingForm y PaymentForm
   const [formData, setFormData] = useState({
     deliveryType: 'delivery',
     fullName: '',
@@ -22,6 +19,14 @@ const CheckoutPage = () => {
     cardName: ''
   });
 
+  // ✅ useCallback para evitar loops infinitos
+  const handleChange = useCallback((field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  }, []);
+
   return (
     <main className="min-h-screen bg-gray-100 py-10">
       <Checkout
@@ -29,6 +34,7 @@ const CheckoutPage = () => {
         setActiveStep={setActiveStep}
         formData={formData}
         setFormData={setFormData}
+        onChange={handleChange}
       />
     </main>
   );
