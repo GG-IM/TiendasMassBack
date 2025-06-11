@@ -8,7 +8,8 @@ import { MetodoPago } from "../entities/MetodoPago.entity";
 
 export const crearPedido = async (req: Request, res: Response): Promise<Response> => {
   try {
-    const { usuarioId, direccionEnvio, metodoPagoId, detalles } = req.body;
+    const { usuarioId, direccionEnvio, metodoPagoId, detalles, montoTotal } = req.body;
+
 
     const usuarioRepo = AppDataSource.getRepository(Usuario);
     const productoRepo = AppDataSource.getRepository(Producto);
@@ -24,17 +25,31 @@ export const crearPedido = async (req: Request, res: Response): Promise<Response
     const metodoPago = await metodoPagoRepo.findOneBy({ id: metodoPagoId });
     if (!metodoPago) return res.status(400).json({ error: "Método de pago inválido" });
 
-    // Calcular monto total y verificar stock
-    let montoTotal = 0;
+    ///////////////////////////////////////////////////
+    // Calcular subtotal y verificar stock
+    let subtotalCalculado = 0;
     for (const detalle of detalles) {
       const producto = await productoRepo.findOneBy({ id: detalle.productoId });
       if (!producto || producto.stock < detalle.cantidad) {
         return res.status(400).json({ error: `Producto sin stock o inválido (ID ${detalle.productoId})` });
       }
-      montoTotal += producto.precio * detalle.cantidad;
+      subtotalCalculado += producto.precio * detalle.cantidad;
       producto.stock -= detalle.cantidad;
       await productoRepo.save(producto);
     }
+
+    // Calcular impuestos y envío (8% de impuestos + 9.99 si es delivery)
+    const impuestos = +(subtotalCalculado * 0.08).toFixed(2);
+    const envio = direccionEnvio?.includes(',') ? 9.99 : 0;
+    const montoEsperado = +(subtotalCalculado + impuestos + envio).toFixed(2);
+
+    // Validar que el monto recibido del frontend coincida con lo esperado
+    if (Math.abs(montoTotal - montoEsperado) > 0.01) {
+      return res.status(400).json({
+        error: `El monto total enviado (${montoTotal}) no coincide con el calculado (${montoEsperado}).`,
+      });
+    }
+    ///////////////////////////////////////////////////
 
     // Crear pedido
     const nuevoPedido = pedidoRepo.create({

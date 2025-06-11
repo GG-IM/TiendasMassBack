@@ -97,7 +97,7 @@ export default function Checkout({ activeStep, setActiveStep, formData, setFormD
         ? `${formData.address}, ${formData.city} ${formData.zipCode}`
         : formData.selectedStore,
       metodoPagoId: parseInt(paymentMethod) || (paymentMethod === 'card' ? 2 : 1),
-      
+      montoTotal: total, // este total ya tiene impuestos y envío
       // ✅ CAMBIO IMPORTANTE: "productos" → "detalles"
       detalles: carrito.map(item => ({
         productoId: parseInt(item.id),
@@ -136,6 +136,7 @@ export default function Checkout({ activeStep, setActiveStep, formData, setFormD
     // Parsear respuesta exitosa
     const result = JSON.parse(responseText);
     console.log('✅ Pedido creado:', result);
+    const metodoSeleccionado = metodosPago.find(m => m.id.toString() === paymentMethod);
 
     // ✅ CREAR OBJETO COMPATIBLE CON TU UI
     const pedidoCreado = {
@@ -144,10 +145,12 @@ export default function Checkout({ activeStep, setActiveStep, formData, setFormD
       direccionEnvio: pedidoData.direccionEnvio,
       estado: 'PENDIENTE',
       estadoPago: 'PENDIENTE',
+
       metodoPago: {
         id: pedidoData.metodoPagoId,
-        nombre: paymentMethod === 'card' || paymentMethod === '2' ? 'Tarjeta de Crédito' : 'PayPal'
+        nombre: metodoSeleccionado?.nombre || (paymentMethod === 'card' ? 'Tarjeta de Crédito' : 'PayPal')
       },
+      
       detallesPedidos: carrito.map(item => ({
         id: item.id,
         cantidad: item.cantidad,
@@ -158,9 +161,41 @@ export default function Checkout({ activeStep, setActiveStep, formData, setFormD
         }
       }))
     };
+/////////////////////////////////////////////////////    
+    const resumen = {
+      items: carrito.map(item => ({
+        nombre: item.title || item.nombre,
+        cantidad: item.cantidad,
+        precio: parsePrice(item.precio),
+      })),
+      subtotal,
+      shippingCost,
+      taxes,
+      total
+    };
 
-    setPedidoCreado(pedidoCreado);
-    
+    setPedidoCreado({
+      id: result.pedidoId,
+      montoTotal: total,
+      direccionEnvio: pedidoData.direccionEnvio,
+      estado: 'PENDIENTE',
+      estadoPago: 'PENDIENTE',
+      metodoPago: {
+        id: pedidoData.metodoPagoId,
+        nombre: metodoSeleccionado?.nombre || (paymentMethod === 'card' ? 'Tarjeta de Crédito' : 'PayPal')
+      },
+      detallesPedidos: carrito.map(item => ({
+        id: item.id,
+        cantidad: item.cantidad,
+        precio: parsePrice(item.precio),
+        producto: {
+          id: item.id,
+          nombre: item.title || item.nombre
+        }
+      })),
+      resumen // ✅ Esto es lo que necesitas para mostrar bien el paso 3
+    });
+/////////////////////    
     // Limpiar carrito
     if (vaciarCarrito) {
       vaciarCarrito();
@@ -539,7 +574,7 @@ export default function Checkout({ activeStep, setActiveStep, formData, setFormD
                 )}
               </div>
 
-              {(paymentMethod === 'card' || paymentMethod === '2') && (
+              {(paymentMethod === 'card' || paymentMethod === '1') && (
                 <div className="card-form">
                   <div className="form-row">
                     <label>Número de Tarjeta *</label>
@@ -589,7 +624,7 @@ export default function Checkout({ activeStep, setActiveStep, formData, setFormD
                 </div>
               )}
 
-              {(paymentMethod === 'paypal' || paymentMethod === '1') && (
+              {(paymentMethod === 'paypal' || paymentMethod === '2') && (
                 <div className="paypal-info">
                   <p>Serás redirigido a PayPal para completar tu pago de forma segura.</p>
                 </div>
@@ -597,100 +632,107 @@ export default function Checkout({ activeStep, setActiveStep, formData, setFormD
             </div>
           )}
 
-          {activeStep === 3 && pedidoCreado && (
-            <div className="section-box confirmation-section">
-              <div className="confirmation-content">
-                <div className="confirmation-icon">
-                  <FaCheck />
-                </div>
-                <h2>¡Pedido Confirmado!</h2>
-                <p>Gracias por tu compra. Tu pedido ha sido procesado exitosamente.</p>
-
-                <div className="order-details">
-                  <h3>Detalles del Pedido</h3>
-                  <div className="detail-row">
-                    <span>Número de Pedido:</span>
-                    <strong>#{pedidoCreado.id}</strong>
-                  </div>
-                  <div className="detail-row">
-                    <span>Total Pagado:</span>
-                    <strong>S/.{parseFloat(pedidoCreado.montoTotal).toFixed(2)}</strong>
-                  </div>
-                  <div className="detail-row">
-                    <span>Método de Pago:</span>
-                    <strong>{pedidoCreado.metodoPago?.nombre || 'N/A'}</strong>
-                  </div>
-                  <div className="detail-row">
-                    <span>Estado del Pago:</span>
-                    <strong style={{ color: pedidoCreado.estadoPago === 'completado' ? 'green' : 'orange' }}>
-                      {pedidoCreado.estadoPago}
-                    </strong>
-                  </div>
-                  <div className="detail-row">
-                    <span>Estado del Pedido:</span>
-                    <strong>{pedidoCreado.estado}</strong>
-                  </div>
-                  <div className="detail-row">
-                    <span>Dirección de Entrega:</span>
-                    <strong>{pedidoCreado.direccionEnvio}</strong>
-                  </div>
-                </div>
-
-                <div className="next-steps">
-                  <h3>Próximos Pasos</h3>
-                  <p>Recibirás un email de confirmación con los detalles de tu pedido y el seguimiento.</p>
-                  <p>Tu pedido será procesado en los próximos días hábiles.</p>
-                </div>
-
-                {/* Mostrar productos del pedido */}
-                {pedidoCreado.detallesPedidos && (
-                  <div className="order-products">
-                    <h3>Productos Pedidos</h3>
-                    {pedidoCreado.detallesPedidos.map(detalle => (
-                      <div key={detalle.id} className="order-product-item">
-                        <span>{detalle.producto.nombre}</span>
-                        <span>x{detalle.cantidad}</span>
-                        <span>S/.{parseFloat(detalle.precio).toFixed(2)}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                <button 
-                  className="btn-primary"
-                  onClick={() => {
-                    // Redirigir al inicio o a la página de pedidos
-                    window.location.href = '/';
-                  }}
-                >
-                  Continuar Comprando
-                </button>
+        {activeStep === 3 && pedidoCreado && (
+          <div className="section-box confirmation-section">
+            <div className="confirmation-content">
+              <div className="confirmation-icon">
+                <FaCheck />
               </div>
-            </div>
-          )}
+              <h2>¡Pedido Confirmado!</h2>
+              <p>Gracias por tu compra. Tu pedido ha sido procesado exitosamente.</p>
 
-          {/* Botones */}
-          <div className="actions">
-            {activeStep > 1 && activeStep < 3 && (
-              <button className="btn-secondary" onClick={prev} disabled={loading}>
-                Atrás
-              </button>
-            )}
-            {activeStep < 3 && (
-              <button
+              <div className="order-details">
+                <h3>Detalles del Pedido</h3>
+                <div className="detail-row">
+                  <span>Número de Pedido:</span>
+                  <strong>#{pedidoCreado.id}</strong>
+                </div>
+                <div className="detail-row">
+                  <span>Total Pagado:</span>
+                  <strong>S/.{pedidoCreado.resumen?.total?.toFixed(2) || parseFloat(pedidoCreado.montoTotal).toFixed(2)}</strong>
+                </div>
+                <div className="detail-row">
+                  <span>Método de Pago:</span>
+                  <strong>{pedidoCreado.metodoPago?.nombre || 'N/A'}</strong>
+                </div>
+                <div className="detail-row">
+                  <span>Estado del Pago:</span>
+                  <strong style={{ color: pedidoCreado.estadoPago === 'completado' ? 'green' : 'orange' }}>
+                    {pedidoCreado.estadoPago}
+                  </strong>
+                </div>
+                <div className="detail-row">
+                  <span>Estado del Pedido:</span>
+                  <strong>{pedidoCreado.estado}</strong>
+                </div>
+                <div className="detail-row">
+                  <span>Dirección de Entrega:</span>
+                  <strong>{pedidoCreado.direccionEnvio}</strong>
+                </div>
+
+              </div>
+
+              <div className="order-products">
+                <h3>Productos Pedidos</h3>
+                {pedidoCreado.resumen?.items?.map((item, index) => (
+                  <div key={index} className="order-product-item">
+                    <span>{item.nombre}</span>
+                    <span>x{item.cantidad}</span>
+                    <span>S/.{(item.precio * item.cantidad).toFixed(2)}</span>
+                  </div>
+                ))}
+
+                  <div className="detail-row">
+                    <span>Envío:</span>
+                    <strong>S/.{pedidoCreado.resumen?.shippingCost?.toFixed(2)}</strong>
+                  </div>
+                  <div className="detail-row">
+                    <span>Impuestos:</span>
+                    <strong>S/.{pedidoCreado.resumen?.taxes?.toFixed(2)}</strong>
+                  </div>
+              </div>
+
+              <div className="next-steps">
+                <h3>Próximos Pasos</h3>
+                <p>Recibirás un email de confirmación con los detalles de tu pedido y el seguimiento.</p>
+                <p>Tu pedido será procesado en los próximos días hábiles.</p>
+              </div>
+
+              <button 
                 className="btn-primary"
-                onClick={next}
-                disabled={
-                  loading ||
-                  (activeStep === 1 && !isStep1Valid()) ||
-                  (activeStep === 2 && !isStep2Valid())
-                }
+                onClick={() => {
+                  window.location.href = '/';
+                }}
               >
-                {loading ? 'Procesando...' : activeStep === 2 ? 'Realizar Pedido' : 'Continuar'}
+                Continuar Comprando
               </button>
-            )}
+            </div>
           </div>
-        </section>
+        )}
+
+
+                  {/* Botones */}
+                  <div className="actions">
+                    {activeStep > 1 && activeStep < 3 && (
+                      <button className="btn-secondary" onClick={prev} disabled={loading}>
+                        Atrás
+                      </button>
+                    )}
+                    {activeStep < 3 && (
+                      <button
+                        className="btn-primary"
+                        onClick={next}
+                        disabled={
+                          loading ||
+                          (activeStep === 1 && !isStep1Valid()) ||
+                          (activeStep === 2 && !isStep2Valid())
+                        }
+                      >
+                        {loading ? 'Procesando...' : activeStep === 2 ? 'Realizar Pedido' : 'Continuar'}
+                      </button>
+                    )}
+                  </div>
+                </section>
 
         {/* --------- LATERAL: Resumen del Pedido --------- */}
         <aside className="right">
@@ -699,34 +741,64 @@ export default function Checkout({ activeStep, setActiveStep, formData, setFormD
 
             {/* Mostrar productos */}
             <div className="order-items">
-              {carrito.map(item => (
-                <div key={item.id} className="order-item">
-                  <div className="item-info">
-                    <span className="item-name">{item.title || item.nombre}</span>
-                    <span className="item-quantity">x{item.cantidad}</span>
-                  </div>
-                  <span className="item-price">S/.{(parsePrice(item.precio) * item.cantidad).toFixed(2)}</span>
-                </div>
-              ))}
+              {activeStep === 3 && pedidoCreado?.resumen
+                ? pedidoCreado.resumen.items.map((item, index) => (
+                    <div key={index} className="order-item">
+                      <div className="item-info">
+                        <span className="item-name">{item.nombre}</span>
+                        <span className="item-quantity">x{item.cantidad}</span>
+                      </div>
+                      <span className="item-price">S/.{(item.precio * item.cantidad).toFixed(2)}</span>
+                    </div>
+                  ))
+                : carrito.map(item => (
+                    <div key={item.id} className="order-item">
+                      <div className="item-info">
+                        <span className="item-name">{item.title || item.nombre}</span>
+                        <span className="item-quantity">x{item.cantidad}</span>
+                      </div>
+                      <span className="item-price">S/.{(parsePrice(item.precio) * item.cantidad).toFixed(2)}</span>
+                    </div>
+                  ))}
             </div>
 
             <hr />
 
             <div className="summary-row">
-              <span>Subtotal ({carrito.length} productos)</span>
-              <span>S/.{subtotal.toFixed(2)}</span>
+              <span>Subtotal ({activeStep === 3 ? pedidoCreado?.resumen?.items?.length : carrito.length} productos)</span>
+              <span>
+                S/.{(activeStep === 3
+                  ? pedidoCreado?.resumen?.subtotal
+                  : subtotal
+                )?.toFixed(2)}
+              </span>
             </div>
             <div className="summary-row">
               <span>Envío</span>
-              <span>S/.{shippingCost.toFixed(2)}</span>
+              <span>
+                S/.{(activeStep === 3
+                  ? pedidoCreado?.resumen?.shippingCost
+                  : shippingCost
+                )?.toFixed(2)}
+              </span>
             </div>
             <div className="summary-row">
               <span>Impuestos</span>
-              <span>S/.{taxes.toFixed(2)}</span>
+              <span>
+                S/.{(activeStep === 3
+                  ? pedidoCreado?.resumen?.taxes
+                  : taxes
+                )?.toFixed(2)}
+              </span>
             </div>
             <div className="summary-total">
               <strong>Total</strong>
-              <strong>S/.{total.toFixed(2)}</strong>
+              <strong>
+                S/.{(activeStep === 3
+                  ? pedidoCreado?.resumen?.total
+                  : total
+                )?.toFixed(2)}
+              </strong>
             </div>
 
             <div className="secure-box">
@@ -749,6 +821,7 @@ export default function Checkout({ activeStep, setActiveStep, formData, setFormD
             )}
           </div>
         </aside>
+
       </div>
     </div>
   );
