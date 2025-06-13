@@ -13,6 +13,8 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { usuario, logout } = useUsuario();
   const { carrito } = useCarrito();
+  const [searchTerm, setSearchTerm] = useState('');
+
 
   const isLoggedIn = Boolean(usuario);
   const nombreUsuario = usuario?.nombre || 'Usuario';

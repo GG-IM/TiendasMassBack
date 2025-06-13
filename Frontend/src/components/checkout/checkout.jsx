@@ -25,7 +25,7 @@ export default function Checkout({ activeStep, setActiveStep, formData, setFormD
 
   // Solo para precargar datos al iniciar
   const { usuario } = useUsuario();
-  
+
   // Cargar métodos de pago disponibles
   useEffect(() => {
     const cargarMetodosPago = async () => {
@@ -39,11 +39,11 @@ export default function Checkout({ activeStep, setActiveStep, formData, setFormD
         console.error('Error al cargar métodos de pago:', error);
       }
     };
-    
+
     cargarMetodosPago();
   }, []);
 
-  // CORREGIDO: Mapeo correcto de campos del usuario con los nuevos campos
+
   useEffect(() => {
     if (usuario) {
       if (!formData.fullName) onChange('fullName', usuario.nombre || '');
@@ -77,150 +77,167 @@ export default function Checkout({ activeStep, setActiveStep, formData, setFormD
 
   // Función para crear el pedido
   const crearPedido = async () => {
-  setLoading(true);
-  setError('');
+    setLoading(true);
+    setError('');
 
-  try {
-    // Validaciones básicas
-    if (!carrito || carrito.length === 0) {
-      throw new Error('El carrito está vacío');
-    }
-
-    if (!formData.fullName || !formData.email || !formData.phone) {
-      throw new Error('Faltan datos requeridos del usuario');
-    }
-
-    // ✅ ESTRUCTURA ADAPTADA AL BACKEND
-    const pedidoData = {
-      usuarioId: usuario?.id || null, // Si no hay usuario, puede ser null
-      direccionEnvio: formData.deliveryType === 'delivery' 
-        ? `${formData.address}, ${formData.city} ${formData.zipCode}`
-        : formData.selectedStore,
-      metodoPagoId: parseInt(paymentMethod) || (paymentMethod === 'card' ? 2 : 1),
-      montoTotal: total, // este total ya tiene impuestos y envío
-      // ✅ CAMBIO IMPORTANTE: "productos" → "detalles"
-      detalles: carrito.map(item => ({
-        productoId: parseInt(item.id),
-        cantidad: parseInt(item.cantidad)
-        // ❌ NO enviar precio - el backend lo calcula
-      }))
-    };
-
-    console.log('📦 Enviando datos adaptados:', JSON.stringify(pedidoData, null, 2));
-
-    const response = await fetch('http://localhost:3000/api/pedidos', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(usuario?.token && { 'Authorization': `Bearer ${usuario.token}` })
-      },
-      body: JSON.stringify(pedidoData)
-    });
-
-    const responseText = await response.text();
-    console.log('📡 Respuesta del servidor:', responseText);
-
-    if (!response.ok) {
-      let errorMessage = `Error ${response.status}: ${response.statusText}`;
-      
-      try {
-        const errorData = JSON.parse(responseText);
-        errorMessage = errorData.error || errorData.message || errorMessage;
-      } catch (e) {
-        console.error('Error al parsear respuesta:', e);
+    try {
+      // Validaciones básicas
+      if (!carrito || carrito.length === 0) {
+        throw new Error('El carrito está vacío');
       }
-      
-      throw new Error(errorMessage);
-    }
 
-    // Parsear respuesta exitosa
-    const result = JSON.parse(responseText);
-    console.log('✅ Pedido creado:', result);
-    const metodoSeleccionado = metodosPago.find(m => m.id.toString() === paymentMethod);
+      if (!formData.fullName || !formData.email || !formData.phone) {
+        throw new Error('Faltan datos requeridos del usuario');
+      }
 
-    // ✅ CREAR OBJETO COMPATIBLE CON TU UI
-    const pedidoCreado = {
-      id: result.pedidoId,
-      montoTotal: total,
-      direccionEnvio: pedidoData.direccionEnvio,
-      estado: 'PENDIENTE',
-      estadoPago: 'PENDIENTE',
+      // ✅ ESTRUCTURA ADAPTADA AL BACKEND
+      const pedidoData = {
+        usuarioId: usuario?.id || null, // Si no hay usuario, puede ser null
+        direccionEnvio: formData.deliveryType === 'delivery'
+          ? `${formData.address}, ${formData.city} ${formData.zipCode}`
+          : formData.selectedStore,
+        metodoPagoId: parseInt(paymentMethod) || (paymentMethod === 'card' ? 2 : 1),
+        montoTotal: total, // este total ya tiene impuestos y envío
+        // ✅ CAMBIO IMPORTANTE: "productos" → "detalles"
+        detalles: carrito.map(item => ({
+          productoId: parseInt(item.id),
+          cantidad: parseInt(item.cantidad)
+          // ❌ NO enviar precio - el backend lo calcula
+        }))
+      };
 
-      metodoPago: {
-        id: pedidoData.metodoPagoId,
-        nombre: metodoSeleccionado?.nombre || (paymentMethod === 'card' ? 'Tarjeta de Crédito' : 'PayPal')
-      },
-      
-      detallesPedidos: carrito.map(item => ({
-        id: item.id,
-        cantidad: item.cantidad,
-        precio: parsePrice(item.precio),
-        producto: {
-          id: item.id,
-          nombre: item.title || item.nombre
+      console.log('📦 Enviando datos adaptados:', JSON.stringify(pedidoData, null, 2));
+
+      const response = await fetch('http://localhost:3000/api/pedidos', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(usuario?.token && { 'Authorization': `Bearer ${usuario.token}` })
+        },
+        body: JSON.stringify(pedidoData)
+      });
+
+      const responseText = await response.text();
+      console.log('📡 Respuesta del servidor:', responseText);
+
+      if (!response.ok) {
+        let errorMessage = `Error ${response.status}: ${response.statusText}`;
+
+        try {
+          const errorData = JSON.parse(responseText);
+          errorMessage = errorData.error || errorData.message || errorMessage;
+        } catch (e) {
+          console.error('Error al parsear respuesta:', e);
         }
-      }))
-    };
-/////////////////////////////////////////////////////    
-    const resumen = {
-      items: carrito.map(item => ({
-        nombre: item.title || item.nombre,
-        cantidad: item.cantidad,
-        precio: parsePrice(item.precio),
-      })),
-      subtotal,
-      shippingCost,
-      taxes,
-      total
-    };
 
-    setPedidoCreado({
-      id: result.pedidoId,
-      montoTotal: total,
-      direccionEnvio: pedidoData.direccionEnvio,
-      estado: 'PENDIENTE',
-      estadoPago: 'PENDIENTE',
-      metodoPago: {
-        id: pedidoData.metodoPagoId,
-        nombre: metodoSeleccionado?.nombre || (paymentMethod === 'card' ? 'Tarjeta de Crédito' : 'PayPal')
-      },
-      detallesPedidos: carrito.map(item => ({
-        id: item.id,
-        cantidad: item.cantidad,
-        precio: parsePrice(item.precio),
-        producto: {
-          id: item.id,
-          nombre: item.title || item.nombre
+        throw new Error(errorMessage);
+      }
+
+      // Parsear respuesta exitosa
+      const result = JSON.parse(responseText);
+      console.log('✅ Pedido creado:', result);
+      const metodoSeleccionado = metodosPago.find(m => m.id.toString() === paymentMethod);
+
+
+      // Función auxiliar para determinar el estado del pago
+      function determinePaymentStatus(result, paymentMethod) {
+        // Si el resultado incluye información del pago
+        if (result.pagoExitoso === true) return 'PAGADO';
+        if (result.pagoExitoso === false) return 'FALLIDO';
+
+        // Si hay un ID de transacción, probablemente fue exitoso
+        if (result.transaccionId || result.paymentId) return 'PAGADO';
+
+        // Para métodos que requieren procesamiento manual
+        const metodosManual = ['transferencia', 'deposito'];
+        const metodoSeleccionado = metodosPago.find(m => m.id.toString() === paymentMethod);
+
+        if (metodosManual.includes(metodoSeleccionado?.tipo)) {
+          return 'PENDIENTE_VERIFICACION';
         }
-      })),
-      resumen // ✅ Esto es lo que necesitas para mostrar bien el paso 3
-    });
-/////////////////////    
-    // Limpiar carrito
-    if (vaciarCarrito) {
-      vaciarCarrito();
-    }
-    
-    setActiveStep(3);
 
-  } catch (error) {
-    console.error('💥 Error:', error);
-    
-    if (error.message.includes('Usuario no encontrado')) {
-      setError('Debes estar registrado para realizar un pedido. Por favor inicia sesión.');
-    } else if (error.message.includes('Método de pago inválido')) {
-      setError('Método de pago no válido. Por favor selecciona otro.');
-    } else if (error.message.includes('stock')) {
-      setError('Algunos productos no tienen stock suficiente. Revisa tu carrito.');
-    } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
-      setError('Error de conexión. Verifica que el servidor esté funcionando.');
-    } else {
-      setError(error.message || 'Error al procesar el pedido');
+        // Para métodos digitales sin confirmación inmediata
+        if (['paypal', 'billetera'].includes(metodoSeleccionado?.tipo)) {
+          return result.estadoProcesamiento || 'PROCESANDO';
+        }
+
+        // Por defecto, pendiente
+        return 'PENDIENTE';
+      }
+
+      setPedidoCreado({
+        id: result.pedidoId,
+        montoTotal: total,
+        direccionEnvio: pedidoData.direccionEnvio,
+        estado: result.estado || 'PENDIENTE',
+        estadoPago: result.estadoPago || determinePaymentStatus(result, paymentMethod),
+        metodoPago: {
+          id: pedidoData.metodoPagoId,
+          nombre: metodoSeleccionado?.nombre || 'Método no especificado'
+        },
+        detallesPedidos: carrito.map((item, index) => ({
+          // Generar ID único para el detalle o usar uno del servidor si existe
+          id: result.detalles?.[index]?.id || `detalle_${result.pedidoId}_${index}`,
+          cantidad: item.cantidad,
+          precio: parsePrice(item.precio),
+          subtotal: parsePrice(item.precio) * item.cantidad, // Agregar subtotal
+          producto: {
+            id: item.id,
+            nombre: item.nombre || item.title || 'Producto sin nombre'
+          }
+        })),
+        
+      });
+
+      // Versión alternativa si el servidor devuelve los detalles completos
+      setPedidoCreado({
+        id: result.pedidoId,
+        montoTotal: total,
+        direccionEnvio: pedidoData.direccionEnvio,
+        estado: result.estado || 'PENDIENTE',
+        estadoPago: result.estadoPago || 'PENDIENTE',
+        metodoPago: {
+          id: pedidoData.metodoPagoId,
+          nombre: metodoSeleccionado?.nombre || 'Método no especificado'
+        },
+        // Si el servidor devuelve los detalles, úsalos directamente
+        detallesPedidos: result.detallesPedidos || carrito.map((item, index) => ({
+          id: `temp_${index}`, // ID temporal hasta que el servidor confirme
+          cantidad: item.cantidad,
+          precio: parsePrice(item.precio),
+          subtotal: parsePrice(item.precio) * item.cantidad,
+          producto: {
+            id: item.id,
+            nombre: item.nombre || item.title || 'Producto sin nombre'
+          }
+        })),
+       
+      });
+
+      if (vaciarCarrito) {
+        vaciarCarrito();
+      }
+
+      setActiveStep(3);
+
+    } catch (error) {
+      console.error('💥 Error:', error);
+
+      if (error.message.includes('Usuario no encontrado')) {
+        setError('Debes estar registrado para realizar un pedido. Por favor inicia sesión.');
+      } else if (error.message.includes('Método de pago inválido')) {
+        setError('Método de pago no válido. Por favor selecciona otro.');
+      } else if (error.message.includes('stock')) {
+        setError('Algunos productos no tienen stock suficiente. Revisa tu carrito.');
+      } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        setError('Error de conexión. Verifica que el servidor esté funcionando.');
+      } else {
+        setError(error.message || 'Error al procesar el pedido');
+      }
+    } finally {
+      setLoading(false);
     }
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   const next = async () => {
     if (activeStep === 2) {
@@ -235,17 +252,17 @@ export default function Checkout({ activeStep, setActiveStep, formData, setFormD
 
   const onCardChange = (field, val) => {
     let value = val;
-    
+
     // Formatear número de tarjeta con espacios
     if (field === 'number') {
       value = val.replace(/\s/g, '').replace(/(.{4})/g, '$1 ').trim();
     }
-    
+
     // Formatear fecha de vencimiento
     if (field === 'expiry') {
       value = val.replace(/\D/g, '').replace(/(\d{2})(\d)/, '$1/$2');
     }
-    
+
     setCardInfo(ci => ({ ...ci, [field]: value }));
   };
 
@@ -253,15 +270,15 @@ export default function Checkout({ activeStep, setActiveStep, formData, setFormD
   const isStep1Valid = () => {
     if (carrito.length === 0) return false;
     if (!formData.fullName || !formData.email || !formData.phone) return false;
-    
+
     if (formData.deliveryType === 'delivery') {
       return formData.address && formData.city && formData.zipCode;
     }
-    
+
     if (formData.deliveryType === 'pickup') {
       return formData.selectedStore;
     }
-    
+
     return true;
   };
 
@@ -308,11 +325,11 @@ export default function Checkout({ activeStep, setActiveStep, formData, setFormD
 
       {/* Mostrar errores */}
       {error && (
-        <div className="error-message" style={{ 
-          background: '#fee', 
-          color: '#c33', 
-          padding: '10px', 
-          margin: '10px 0', 
+        <div className="error-message" style={{
+          background: '#fee',
+          color: '#c33',
+          padding: '10px',
+          margin: '10px 0',
           borderRadius: '4px',
           border: '1px solid #fcc'
         }}>
@@ -531,156 +548,207 @@ export default function Checkout({ activeStep, setActiveStep, formData, setFormD
                           <small>Comisión: {metodo.comision}%</small>
                         )}
                       </div>
+                      {/* Mostrar logo si existe */}
+                      {metodo.logo && (
+                        <div className="payment-logos">
+                          <img src={metodo.logo} alt={metodo.nombre} />
+                        </div>
+                      )}
                     </label>
                   ))
                 ) : (
-                  // Fallback a opciones por defecto
-                  <>
-                    <label className={`payment-option ${paymentMethod === 'card' ? 'selected' : ''}`}>
-                      <input
-                        type="radio"
-                        name="payment"
-                        value="card"
-                        checked={paymentMethod === 'card'}
-                        onChange={() => setPaymentMethod('card')}
-                      />
-                      <div className="payment-labels">
-                        <strong>Tarjeta de Crédito/Débito</strong>
-                        <small>Visa, Mastercard, American Express</small>
-                      </div>
-                      <div className="payment-logos">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png" alt="Visa" />
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Mastercard_2019_logo.svg/640px-Mastercard_2019_logo.svg.png" alt="Mastercard" />
-                      </div>
-                    </label>
-
-                    <label className={`payment-option ${paymentMethod === 'paypal' ? 'selected' : ''}`}>
-                      <input
-                        type="radio"
-                        name="payment"
-                        value="paypal"
-                        checked={paymentMethod === 'paypal'}
-                        onChange={() => setPaymentMethod('paypal')}
-                      />
-                      <div className="payment-labels">
-                        <strong>PayPal</strong>
-                        <small>Paga con tu cuenta de PayPal</small>
-                      </div>
-                      <div className="payment-logos">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal" />
-                      </div>
-                    </label>
-                  </>
+                  <div className="no-payment-methods">
+                    <p>Cargando métodos de pago...</p>
+                  </div>
                 )}
               </div>
 
-              {(paymentMethod === 'card' || paymentMethod === '1') && (
-                <div className="card-form">
-                  <div className="form-row">
-                    <label>Número de Tarjeta *</label>
-                    <input
-                      type="text"
-                      placeholder="1234 5678 9012 3456"
-                      value={cardInfo.number}
-                      onChange={e => onCardChange('number', e.target.value)}
-                      maxLength="19"
-                      required
-                    />
-                  </div>
-                  <div className="form-row split-2">
-                    <div>
-                      <label>Fecha de Vencimiento *</label>
-                      <input
-                        type="text"
-                        placeholder="MM/AA"
-                        value={cardInfo.expiry}
-                        onChange={e => onCardChange('expiry', e.target.value)}
-                        maxLength="5"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label>CVV *</label>
-                      <input
-                        type="text"
-                        placeholder="123"
-                        value={cardInfo.cvv}
-                        onChange={e => onCardChange('cvv', e.target.value)}
-                        maxLength="4"
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="form-row">
-                    <label>Nombre en la Tarjeta *</label>
-                    <input
-                      type="text"
-                      placeholder="Juan Pérez"
-                      value={cardInfo.nameOnCard}
-                      onChange={e => onCardChange('nameOnCard', e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-              )}
+              {/* Mostrar formularios solo si hay una selección */}
+              {paymentMethod && (
+                <>
+                  {/* Formulario para tarjeta de crédito/débito */}
+                  {(() => {
+                    const selectedMethod = metodosPago.find(m => m.id.toString() === paymentMethod);
+                    const isCardMethod = selectedMethod?.tipo === 'tarjeta' || selectedMethod?.nombre?.toLowerCase().includes('tarjeta');
 
-              {(paymentMethod === 'paypal' || paymentMethod === '2') && (
-                <div className="paypal-info">
-                  <p>Serás redirigido a PayPal para completar tu pago de forma segura.</p>
-                </div>
+                    return isCardMethod && (
+                      <div className="card-form">
+                        <div className="form-row">
+                          <label>Número de Tarjeta *</label>
+                          <input
+                            type="text"
+                            placeholder="1234 5678 9012 3456"
+                            value={cardInfo.number}
+                            onChange={e => onCardChange('number', e.target.value)}
+                            maxLength="19"
+                            required
+                          />
+                        </div>
+                        <div className="form-row split-2">
+                          <div>
+                            <label>Fecha de Vencimiento *</label>
+                            <input
+                              type="text"
+                              placeholder="MM/AA"
+                              value={cardInfo.expiry}
+                              onChange={e => onCardChange('expiry', e.target.value)}
+                              maxLength="5"
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label>CVV *</label>
+                            <input
+                              type="text"
+                              placeholder="123"
+                              value={cardInfo.cvv}
+                              onChange={e => onCardChange('cvv', e.target.value)}
+                              maxLength="4"
+                              required
+                            />
+                          </div>
+                        </div>
+                        <div className="form-row">
+                          <label>Nombre en la Tarjeta *</label>
+                          <input
+                            type="text"
+                            placeholder="Juan Pérez"
+                            value={cardInfo.nameOnCard}
+                            onChange={e => onCardChange('nameOnCard', e.target.value)}
+                            required
+                          />
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Información para PayPal */}
+                  {(() => {
+                    const selectedMethod = metodosPago.find(m => m.id.toString() === paymentMethod);
+                    const isPayPalMethod = selectedMethod?.tipo === 'paypal' || selectedMethod?.nombre?.toLowerCase().includes('paypal');
+
+                    return isPayPalMethod && (
+                      <div className="paypal-info">
+                        <p>Serás redirigido a PayPal para completar tu pago de forma segura.</p>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Información para transferencia bancaria */}
+                  {(() => {
+                    const selectedMethod = metodosPago.find(m => m.id.toString() === paymentMethod);
+                    const isBankTransferMethod = selectedMethod?.tipo === 'transferencia' || selectedMethod?.nombre?.toLowerCase().includes('transferencia');
+
+                    return isBankTransferMethod && (
+                      <div className="bank-transfer-info">
+                        <h4>Datos para Transferencia Bancaria</h4>
+                        <div className="bank-details">
+                          <p><strong>Banco:</strong> {selectedMethod.datosBanco?.banco || 'Información no disponible'}</p>
+                          <p><strong>Número de Cuenta:</strong> {selectedMethod.datosBanco?.cuenta || 'Información no disponible'}</p>
+                          <p><strong>Titular:</strong> {selectedMethod.datosBanco?.titular || 'Información no disponible'}</p>
+                          <p><strong>Concepto:</strong> Pedido #{selectedMethod.datosBanco?.referencia || 'XXXXX'}</p>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Información para billeteras digitales */}
+                  {(() => {
+                    const selectedMethod = metodosPago.find(m => m.id.toString() === paymentMethod);
+                    const isWalletMethod = selectedMethod?.tipo === 'billetera' ||
+                      ['yape', 'plin', 'tunki', 'lukita'].some(wallet =>
+                        selectedMethod?.nombre?.toLowerCase().includes(wallet)
+                      );
+
+                    return isWalletMethod && (
+                      <div className="wallet-info">
+                        <p>Serás redirigido a {selectedMethod?.nombre} para completar tu pago.</p>
+                        {selectedMethod?.instrucciones && (
+                          <div className="payment-instructions">
+                            <small>{selectedMethod.instrucciones}</small>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
+
+                  {/* Información genérica para otros métodos */}
+                  {(() => {
+                    const selectedMethod = metodosPago.find(m => m.id.toString() === paymentMethod);
+                    const isGenericMethod = selectedMethod &&
+                      !['tarjeta', 'paypal', 'transferencia', 'billetera'].includes(selectedMethod.tipo) &&
+                      !selectedMethod.nombre?.toLowerCase().includes('tarjeta') &&
+                      !selectedMethod.nombre?.toLowerCase().includes('paypal') &&
+                      !selectedMethod.nombre?.toLowerCase().includes('transferencia') &&
+                      !['yape', 'plin', 'tunki', 'lukita'].some(wallet =>
+                        selectedMethod.nombre?.toLowerCase().includes(wallet)
+                      );
+
+                    return isGenericMethod && (
+                      <div className="generic-payment-info">
+                        <p>Has seleccionado: <strong>{selectedMethod.nombre}</strong></p>
+                        {selectedMethod.instrucciones && (
+                          <div className="payment-instructions">
+                            <p>{selectedMethod.instrucciones}</p>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
+                </>
               )}
             </div>
           )}
 
-        {activeStep === 3 && pedidoCreado && (
-          <div className="section-box confirmation-section">
-            <div className="confirmation-content">
-              <div className="confirmation-icon">
-                <FaCheck />
-              </div>
-              <h2>¡Pedido Confirmado!</h2>
-              <p>Gracias por tu compra. Tu pedido ha sido procesado exitosamente.</p>
+          {activeStep === 3 && pedidoCreado && (
+            <div className="section-box confirmation-section">
+              <div className="confirmation-content">
+                <div className="confirmation-icon">
+                  <FaCheck />
+                </div>
+                <h2>¡Pedido Confirmado!</h2>
+                <p>Gracias por tu compra. Tu pedido ha sido procesado exitosamente.</p>
 
-              <div className="order-details">
-                <h3>Detalles del Pedido</h3>
-                <div className="detail-row">
-                  <span>Número de Pedido:</span>
-                  <strong>#{pedidoCreado.id}</strong>
-                </div>
-                <div className="detail-row">
-                  <span>Total Pagado:</span>
-                  <strong>S/.{pedidoCreado.resumen?.total?.toFixed(2) || parseFloat(pedidoCreado.montoTotal).toFixed(2)}</strong>
-                </div>
-                <div className="detail-row">
-                  <span>Método de Pago:</span>
-                  <strong>{pedidoCreado.metodoPago?.nombre || 'N/A'}</strong>
-                </div>
-                <div className="detail-row">
-                  <span>Estado del Pago:</span>
-                  <strong style={{ color: pedidoCreado.estadoPago === 'completado' ? 'green' : 'orange' }}>
-                    {pedidoCreado.estadoPago}
-                  </strong>
-                </div>
-                <div className="detail-row">
-                  <span>Estado del Pedido:</span>
-                  <strong>{pedidoCreado.estado}</strong>
-                </div>
-                <div className="detail-row">
-                  <span>Dirección de Entrega:</span>
-                  <strong>{pedidoCreado.direccionEnvio}</strong>
-                </div>
-
-              </div>
-
-              <div className="order-products">
-                <h3>Productos Pedidos</h3>
-                {pedidoCreado.resumen?.items?.map((item, index) => (
-                  <div key={index} className="order-product-item">
-                    <span>{item.nombre}</span>
-                    <span>x{item.cantidad}</span>
-                    <span>S/.{(item.precio * item.cantidad).toFixed(2)}</span>
+                <div className="order-details">
+                  <h3>Detalles del Pedido</h3>
+                  <div className="detail-row">
+                    <span>Número de Pedido:</span>
+                    <strong>#{pedidoCreado.id}</strong>
                   </div>
-                ))}
+                  <div className="detail-row">
+                    <span>Total Pagado:</span>
+                    <strong>S/.{pedidoCreado.resumen?.total?.toFixed(2) || parseFloat(pedidoCreado.montoTotal).toFixed(2)}</strong>
+                  </div>
+                  <div className="detail-row">
+                    <span>Método de Pago:</span>
+                    <strong>{pedidoCreado.metodoPago?.nombre || 'N/A'}</strong>
+                  </div>
+                  <div className="detail-row">
+                    <span>Estado del Pago:</span>
+                    <strong style={{ color: pedidoCreado.estadoPago === 'completado' ? 'green' : 'orange' }}>
+                      {pedidoCreado.estadoPago}
+                    </strong>
+                  </div>
+                  <div className="detail-row">
+                    <span>Estado del Pedido:</span>
+                    <strong>{pedidoCreado.estado}</strong>
+                  </div>
+                  <div className="detail-row">
+                    <span>Dirección de Entrega:</span>
+                    <strong>{pedidoCreado.direccionEnvio}</strong>
+                  </div>
+
+                </div>
+
+                <div className="order-products">
+                  <h3>Productos Pedidos</h3>
+                  {pedidoCreado.resumen?.items?.map((item, index) => (
+                    <div key={index} className="order-product-item">
+                      <span>{item.nombre}</span>
+                      <span>x{item.cantidad}</span>
+                      <span>S/.{(item.precio * item.cantidad).toFixed(2)}</span>
+                    </div>
+                  ))}
 
                   <div className="detail-row">
                     <span>Envío:</span>
@@ -690,49 +758,49 @@ export default function Checkout({ activeStep, setActiveStep, formData, setFormD
                     <span>Impuestos:</span>
                     <strong>S/.{pedidoCreado.resumen?.taxes?.toFixed(2)}</strong>
                   </div>
-              </div>
+                </div>
 
-              <div className="next-steps">
-                <h3>Próximos Pasos</h3>
-                <p>Recibirás un email de confirmación con los detalles de tu pedido y el seguimiento.</p>
-                <p>Tu pedido será procesado en los próximos días hábiles.</p>
-              </div>
+                <div className="next-steps">
+                  <h3>Próximos Pasos</h3>
+                  <p>Recibirás un email de confirmación con los detalles de tu pedido y el seguimiento.</p>
+                  <p>Tu pedido será procesado en los próximos días hábiles.</p>
+                </div>
 
-              <button 
-                className="btn-primary"
-                onClick={() => {
-                  window.location.href = '/';
-                }}
-              >
-                Continuar Comprando
-              </button>
+                <button
+                  className="btn-primary"
+                  onClick={() => {
+                    window.location.href = '/';
+                  }}
+                >
+                  Continuar Comprando
+                </button>
+              </div>
             </div>
+          )}
+
+
+          {/* Botones */}
+          <div className="actions">
+            {activeStep > 1 && activeStep < 3 && (
+              <button className="btn-secondary" onClick={prev} disabled={loading}>
+                Atrás
+              </button>
+            )}
+            {activeStep < 3 && (
+              <button
+                className="btn-primary"
+                onClick={next}
+                disabled={
+                  loading ||
+                  (activeStep === 1 && !isStep1Valid()) ||
+                  (activeStep === 2 && !isStep2Valid())
+                }
+              >
+                {loading ? 'Procesando...' : activeStep === 2 ? 'Realizar Pedido' : 'Continuar'}
+              </button>
+            )}
           </div>
-        )}
-
-
-                  {/* Botones */}
-                  <div className="actions">
-                    {activeStep > 1 && activeStep < 3 && (
-                      <button className="btn-secondary" onClick={prev} disabled={loading}>
-                        Atrás
-                      </button>
-                    )}
-                    {activeStep < 3 && (
-                      <button
-                        className="btn-primary"
-                        onClick={next}
-                        disabled={
-                          loading ||
-                          (activeStep === 1 && !isStep1Valid()) ||
-                          (activeStep === 2 && !isStep2Valid())
-                        }
-                      >
-                        {loading ? 'Procesando...' : activeStep === 2 ? 'Realizar Pedido' : 'Continuar'}
-                      </button>
-                    )}
-                  </div>
-                </section>
+        </section>
 
         {/* --------- LATERAL: Resumen del Pedido --------- */}
         <aside className="right">
@@ -743,23 +811,23 @@ export default function Checkout({ activeStep, setActiveStep, formData, setFormD
             <div className="order-items">
               {activeStep === 3 && pedidoCreado?.resumen
                 ? pedidoCreado.resumen.items.map((item, index) => (
-                    <div key={index} className="order-item">
-                      <div className="item-info">
-                        <span className="item-name">{item.nombre}</span>
-                        <span className="item-quantity">x{item.cantidad}</span>
-                      </div>
-                      <span className="item-price">S/.{(item.precio * item.cantidad).toFixed(2)}</span>
+                  <div key={index} className="order-item">
+                    <div className="item-info">
+                      <span className="item-name">{item.nombre}</span>
+                      <span className="item-quantity">x{item.cantidad}</span>
                     </div>
-                  ))
+                    <span className="item-price">S/.{(item.precio * item.cantidad).toFixed(2)}</span>
+                  </div>
+                ))
                 : carrito.map(item => (
-                    <div key={item.id} className="order-item">
-                      <div className="item-info">
-                        <span className="item-name">{item.title || item.nombre}</span>
-                        <span className="item-quantity">x{item.cantidad}</span>
-                      </div>
-                      <span className="item-price">S/.{(parsePrice(item.precio) * item.cantidad).toFixed(2)}</span>
+                  <div key={item.id} className="order-item">
+                    <div className="item-info">
+                      <span className="item-name">{item.title || item.nombre}</span>
+                      <span className="item-quantity">x{item.cantidad}</span>
                     </div>
-                  ))}
+                    <span className="item-price">S/.{(parsePrice(item.precio) * item.cantidad).toFixed(2)}</span>
+                  </div>
+                ))}
             </div>
 
             <hr />
