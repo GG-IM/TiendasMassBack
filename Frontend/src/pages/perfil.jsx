@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { User, Package, MapPin, CreditCard, LogOut, Menu, X, Bell } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { User, Package, MapPin, CreditCard, LogOut, Menu, X } from 'lucide-react';
 
 import Profile from '../components/perfil/profile';
 import Orders from '../components/perfil/orders';
@@ -7,6 +7,7 @@ import Addresses from '../components/perfil/direccion';
 import Payments from '../components/perfil/metodopago';
 import Footer from '../components/footer/footer';
 
+import { useUsuario } from '../context/userContext';
 import '../styles/perfil.css';
 
 const menuItems = [
@@ -19,78 +20,57 @@ const menuItems = [
 const UserProfile = () => {
   const [activeSection, setActiveSection] = useState('profile');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userData, setUserData] = useState(null);
 
-  const [userData, setUserData] = useState({
-    name: 'YOU González',
-    email: 'YOU.gonzalez@email.com',
-    phone: '+34 123 456 789',
-    birthDate: '15/03/1990',
+  const { usuario, logout } = useUsuario();
 
-  });
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!usuario?.id) return;
 
+      try {
+        const response = await fetch(`http://localhost:3000/api/usuarios/${usuario.id}`);
+        const data = await response.json();
+
+        // Asumimos que la respuesta ya tiene los nombres de la entidad Usuario
+        setUserData({
+          id: data.id,
+          nombre: data.nombre,
+          email: data.email,
+          telefono: data.telefono,
+          ciudad: data.ciudad,
+          direccion: data.direccion,
+          codigoPostal: data.codigoPostal,
+          birthDate: '15/03/1990', // temporal, para UI (puedes agregarlo luego en BD)
+        });
+      } catch (error) {
+        console.error('Error al cargar datos del perfil:', error);
+      }
+    };
+
+    fetchUserData();
+  }, [usuario]);
+
+  // Datos de prueba para otras secciones (puedes conectar con backend más adelante)
   const addresses = [
-    {
-      id: 1,
-      type: 'Casa',
-      street: 'Calle Mayor 123',
-      city: 'Madrid',
-      zipCode: '28001',
-      country: 'España',
-      isDefault: true,
-    },
-    {
-      id: 2,
-      type: 'Trabajo',
-      street: 'Av. de la Castellana 456',
-      city: 'Madrid',
-      zipCode: '28046',
-      country: 'España',
-      isDefault: false,
-    },
+    { id: 1, type: 'Casa', street: 'Calle Mayor 123', city: 'Madrid', zipCode: '28001', country: 'España', isDefault: true },
+    { id: 2, type: 'Trabajo', street: 'Av. de la Castellana 456', city: 'Madrid', zipCode: '28046', country: 'España', isDefault: false },
   ];
 
   const paymentMethods = [
-    {
-      id: 1,
-      type: 'Visa',
-      last4: '1234',
-      expiry: '12/26',
-      isDefault: true,
-    },
-    {
-      id: 2,
-      type: 'Mastercard',
-      last4: '5678',
-      expiry: '08/27',
-      isDefault: false,
-    },
+    { id: 1, type: 'Visa', last4: '1234', expiry: '12/26', isDefault: true },
+    { id: 2, type: 'Mastercard', last4: '5678', expiry: '08/27', isDefault: false },
   ];
 
   const orders = [
-    {
-      id: '#12345',
-      date: '20 May, 2024',
-      status: 'Entregado',
-      total: '€89.99',
-      items: 3,
-    },
-    {
-      id: '#12344',
-      date: '15 May, 2024',
-      status: 'En camino',
-      total: '€156.50',
-      items: 2,
-    },
-    {
-      id: '#12343',
-      date: '8 May, 2024',
-      status: 'Procesando',
-      total: '€45.00',
-      items: 1,
-    },
+    { id: '#12345', date: '20 May, 2024', status: 'Entregado', total: '€89.99', items: 3 },
+    { id: '#12344', date: '15 May, 2024', status: 'En camino', total: '€156.50', items: 2 },
+    { id: '#12343', date: '8 May, 2024', status: 'Procesando', total: '€45.00', items: 1 },
   ];
 
   const renderSection = () => {
+    if (!userData) return <p style={{ padding: '2rem' }}>Cargando perfil...</p>;
+
     switch (activeSection) {
       case 'profile':
         return <Profile userData={userData} setUserData={setUserData} />;
@@ -111,14 +91,13 @@ const UserProfile = () => {
   };
 
   return (
-
     <div className="user-profile">
       <header className="header-navbar">
         <div className="logo">
           <img src="Frontend/src/assets/logo.png" alt="Logo Mercadona" />
         </div>
         <div className="user-info-header">
-          <span>{userData.name}</span>
+          <span>{userData?.nombre ?? 'Usuario'}</span>
         </div>
       </header>
 
@@ -134,8 +113,8 @@ const UserProfile = () => {
         <aside className={`sidebar ${mobileMenuOpen ? 'mobile-open' : ''}`}>
           <div className="user-info">
             <div className="user-details">
-              <div className="user-name">{userData.name}</div>
-              <div className="user-email">{userData.email}</div>
+              <div className="user-name">{userData?.nombre}</div>
+              <div className="user-email">{userData?.email}</div>
             </div>
           </div>
 
@@ -156,16 +135,11 @@ const UserProfile = () => {
           </nav>
 
           <div className="sidebar-footer">
-            <button className="logout-link" type="button">
+            <button className="logout-link" type="button" onClick={logout}>
               <LogOut size={20} className="menu-icon" />
               <span>Cerrar Sesión</span>
             </button>
-            <button
-              className="logout-link"
-              type="button"
-              onClick={() => window.location.href = '/'} // Redirige a la página de inicio
-            >
-              {/* Puedes usar otro icono, por ejemplo Settings o una casa (house) si tienes */}
+            <button className="logout-link" type="button" onClick={() => (window.location.href = '/')}>
               <User size={20} className="menu-icon" />
               <span>Inicio</span>
             </button>
@@ -175,14 +149,11 @@ const UserProfile = () => {
         {mobileMenuOpen && <div className="mobile-overlay" onClick={() => setMobileMenuOpen(false)}></div>}
 
         <main className="main-content">
-          <div className="container-content">
-            {renderSection()}
-          </div>
+          <div className="container-content">{renderSection()}</div>
         </main>
       </div>
       <Footer />
     </div>
-
   );
 };
 

@@ -20,8 +20,8 @@ const Productos = ({ categoriaId }) => {
       setError(null);
       try {
         const url = categoriaId
-          ? `http://localhost:3000/api/productos?categoriaId=${categoriaId}`
-          : 'http://localhost:3000/api/productos';
+          ? `http://localhost:3000/api/products?categoriaId=${categoriaId}`
+          : 'http://localhost:3000/api/products';
         const res = await axios.get(url);
         setProductos(res.data);
       } catch (err) {
@@ -37,7 +37,7 @@ const Productos = ({ categoriaId }) => {
 
   const handleAgregar = (productoConCantidad) => {
     agregarProducto(productoConCantidad);
-   
+
     setTimeout(() => setMensaje(null), 3000);
   };
 
@@ -55,7 +55,7 @@ const Productos = ({ categoriaId }) => {
 
   return (
     <div className="productos-container">
-      
+
 
       {mensaje && (
         <div
@@ -90,9 +90,9 @@ const Productos = ({ categoriaId }) => {
         ))}
       </div>
 
-    
-       
-      
+
+
+
     </div>
   );
 };
