@@ -5,7 +5,7 @@ import { useUsuario } from '../../context/userContext';
 import { useNavigate } from 'react-router-dom';
 import ProductCard from './productCard';
 
-const Productos = ({ categoriaId }) => {
+const Productos = ({ categoriaId,onProductClick }) => {
   const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -86,6 +86,7 @@ const Productos = ({ categoriaId }) => {
             key={producto.id}
             producto={producto}
             onAdd={handleAgregar}
+            onClick={() => onProductClick && onProductClick(producto)} // Llama a la función cuando se hace clic
           />
         ))}
       </div>

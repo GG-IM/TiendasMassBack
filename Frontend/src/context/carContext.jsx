@@ -50,21 +50,22 @@ export const CarritoProvider = ({ children }) => {
     setCarrito(prev => {
       const existente = prev.find(p => p.id === producto.id);
       let nuevoCarrito;
-      
+
       if (existente) {
-        nuevoCarrito = prev.map(p => 
-          p.id === producto.id 
-            ? { ...p, cantidad: p.cantidad + 1 } 
+        nuevoCarrito = prev.map(p =>
+          p.id === producto.id
+            ? { ...p, cantidad: p.cantidad + (producto.cantidad || 1) }
             : p
         );
       } else {
-        nuevoCarrito = [...prev, { 
-          ...producto, 
-          cantidad: 1, 
-          imagen: producto.imagen || producto.img || '/placeholder-image.jpg' 
+        nuevoCarrito = [...prev, {
+          ...producto,
+          cantidad: producto.cantidad || 1,
+          imagen: producto.imagen || producto.img || '/placeholder-image.jpg'
         }];
       }
-      
+
+
       // Guardar inmediatamente después del cambio
       setTimeout(() => guardarCarrito(nuevoCarrito, usuario?.id), 0);
       return nuevoCarrito;
@@ -82,7 +83,7 @@ export const CarritoProvider = ({ children }) => {
 
   const aumentarCantidad = (id) => {
     setCarrito(prev => {
-      const nuevoCarrito = prev.map(p => 
+      const nuevoCarrito = prev.map(p =>
         p.id === id ? { ...p, cantidad: p.cantidad + 1 } : p
       );
       // Guardar inmediatamente después del cambio
@@ -94,13 +95,13 @@ export const CarritoProvider = ({ children }) => {
   const disminuirCantidad = (id) => {
     setCarrito(prev => {
       const nuevoCarrito = prev
-        .map(p => 
-          p.id === id && p.cantidad > 1 
-            ? { ...p, cantidad: p.cantidad - 1 } 
+        .map(p =>
+          p.id === id && p.cantidad > 1
+            ? { ...p, cantidad: p.cantidad - 1 }
             : p
         )
         .filter(p => p.cantidad > 0);
-      
+
       // Guardar inmediatamente después del cambio
       setTimeout(() => guardarCarrito(nuevoCarrito, usuario?.id), 0);
       return nuevoCarrito;
@@ -119,7 +120,7 @@ export const CarritoProvider = ({ children }) => {
   const total = carrito.reduce((acc, p) => acc + (p.precio * p.cantidad), 0);
 
   return (
-    <CarritoContext.Provider 
+    <CarritoContext.Provider
       value={{
         carrito,
         agregarProducto,

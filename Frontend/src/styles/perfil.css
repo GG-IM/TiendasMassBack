@@ -173,6 +173,13 @@
   background: none;
   text-align: left;
 }
+.inicio {
+  color: #1e293b;
+}
+.inicio:hover {
+  color: #3b82f6;
+  background-color: #e2e8f0 !important;
+}
 
 .logout-link:hover {
   background: #fef2f2;

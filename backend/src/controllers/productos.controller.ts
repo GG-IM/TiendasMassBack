@@ -54,31 +54,40 @@ export class ProductController {
   };
 
   public getAllProducts = async (req: Request, res: Response): Promise<void> => {
-    try {
-      const categoriaId = req.query.categoriaId as string;
-      let products: Producto[];
+  try {
+    const categoriaId = req.query.categoriaId as string;
+    const searchQuery = (req.query.q as string)?.toLowerCase();
+    let products: Producto[];
 
-      if (categoriaId) {
-        products = await this.productRepository.find({
-          where: { categoria: { id: parseInt(categoriaId) } },
-          relations: ['categoria', 'estado']
-        });
-      } else {
-        products = await this.productRepository.find({
-          relations: ['categoria', 'estado']
-        });
-      }
+    // Usamos QueryBuilder para búsquedas flexibles
+    const baseQuery = this.productRepository
+      .createQueryBuilder('producto')
+      .leftJoinAndSelect('producto.categoria', 'categoria')
+      .leftJoinAndSelect('producto.estado', 'estado');
 
-      // Normalizar productos antes de enviar
-      const normalizedProducts = products.map(this.normalizeProduct);
-      res.json(normalizedProducts);
-    } catch (error) {
-      console.error('Error en getAllProducts:', error);
-      res.status(500).json({ 
-        message: error instanceof Error ? error.message : 'Error interno del servidor' 
-      });
+    if (categoriaId) {
+      baseQuery.andWhere('categoria.id = :categoriaId', { categoriaId: parseInt(categoriaId) });
     }
-  };
+
+    if (searchQuery) {
+      baseQuery.andWhere(
+        '(LOWER(producto.nombre) LIKE :q OR LOWER(producto.descripcion) LIKE :q)',
+        { q: `%${searchQuery}%` }
+      );
+    }
+
+    products = await baseQuery.getMany();
+
+    const normalizedProducts = products.map(this.normalizeProduct);
+    res.json(normalizedProducts);
+  } catch (error) {
+    console.error('Error en getAllProducts:', error);
+    res.status(500).json({
+      message: error instanceof Error ? error.message : 'Error interno del servidor'
+    });
+  }
+};
+
 
   public getProductById = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -304,7 +313,11 @@ export class ProductController {
       });
     }
   };
+
+
+  
 }
+
 
 // Crear instancia del controlador
 const productController = new ProductController();
