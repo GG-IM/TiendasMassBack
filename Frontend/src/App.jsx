@@ -6,8 +6,11 @@ import CheckoutPage from './pages/CheckoutPage';
 import Contacto from './pages/contacto';
 import { CarritoProvider } from './context/carContext';
 import { UsuarioProvider } from './context/userContext';
+import ResultadosBusqueda from './pages/ResultadosBusqueda';
 import React from 'react';
 import UserProfile from './pages/perfil'; 
+import DetalleProducto from './components/productos/detalleproductomodal';
+
 import './App.css';
 
 function App() {
@@ -17,6 +20,8 @@ function App() {
         <Router>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/producto/:id" element={<DetalleProducto />} />
+            <Route path="/buscar" element={<ResultadosBusqueda />} />
             <Route path="/categorias" element={<Categorias />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />

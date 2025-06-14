@@ -155,3 +155,37 @@ export const eliminarPedido = async (req: Request, res: Response): Promise<Respo
     return res.status(500).json({ error: "Error al eliminar el pedido" });
   }
 };
+export const obtenerPedidosPorUsuario = async (req: Request, res: Response): Promise<Response> => {
+  try {
+    const { usuarioId } = req.params;
+    
+    const pedidoRepo = AppDataSource.getRepository(Pedido);
+    const usuarioRepo = AppDataSource.getRepository(Usuario);
+
+    // Verificar que el usuario existe
+    const usuario = await usuarioRepo.findOneBy({ id: parseInt(usuarioId) });
+    if (!usuario) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    // Obtener pedidos del usuario con todas las relaciones necesarias
+    const pedidos = await pedidoRepo.find({
+      where: { usuario: { id: parseInt(usuarioId) } },
+      relations: ["usuario", "detallesPedidos", "detallesPedidos.producto", "metodoPago"],
+      order: { id: "DESC" } // Ordenar por ID más reciente primero
+    });
+
+    return res.json({
+      usuario: {
+        id: usuario.id,
+        nombre: usuario.nombre,
+        email: usuario.email
+      },
+      pedidos: pedidos
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Error al obtener los pedidos del usuario" });
+  }
+};

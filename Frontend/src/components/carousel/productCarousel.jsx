@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Slider from 'react-slick';
 import ProductCard from '../productos/productCard';
-import { useCarrito } from '../../context/carContext';  // Importa el contexto carrito
+import { useCarrito } from '../../context/carContext';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import './productCarousel.css'; // Asegúrate de que la ruta sea correcta
+import './productCarousel.css';
 
-const ProductCarousel = () => {
+const ProductCarousel = ({ onProductClick }) => {
   const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -29,14 +29,13 @@ const ProductCarousel = () => {
 
   const handleAgregar = (productoConCantidad) => {
     agregarProducto(productoConCantidad);
-    // Si quieres, puedes agregar feedback visual aquí, tipo toast o mensaje
   };
 
   const settings = {
     dots: true,
     infinite: true,
     speed: 500,
-    slidesToShow: 5,  
+    slidesToShow: 5,
     slidesToScroll: 2,
     responsive: [
       { breakpoint: 992, settings: { slidesToShow: 2 } },
@@ -52,7 +51,11 @@ const ProductCarousel = () => {
     <Slider {...settings}>
       {productos.map(producto => (
         <div key={producto.id} style={{ padding: '0 10px' }}>
-          <ProductCard producto={producto} onAdd={handleAgregar} />
+          <ProductCard
+            producto={producto}
+            onAdd={handleAgregar}
+            onClick={() => onProductClick && onProductClick(producto)} // Llama a la función cuando se hace clic
+          />
         </div>
       ))}
     </Slider>

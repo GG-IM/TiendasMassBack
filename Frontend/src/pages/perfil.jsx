@@ -6,7 +6,7 @@ import Orders from '../components/perfil/orders';
 import Addresses from '../components/perfil/direccion';
 import Payments from '../components/perfil/metodopago';
 import Footer from '../components/footer/footer';
-
+import { useNavigate } from 'react-router-dom';
 import { useUsuario } from '../context/userContext';
 import '../styles/perfil.css';
 
@@ -17,12 +17,20 @@ const menuItems = [
   { id: 'payments', label: 'Métodos de Pago', icon: CreditCard },
 ];
 
+
 const UserProfile = () => {
+
+
   const [activeSection, setActiveSection] = useState('profile');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userData, setUserData] = useState(null);
+  const { usuario, logout } = useUsuario(); // esta línea debe ir antes
 
-  const { usuario, logout } = useUsuario();
+  const handleLogout = () => {
+    logout();
+    window.location.href = '/';
+  };
+
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -53,8 +61,8 @@ const UserProfile = () => {
 
   // Datos de prueba para otras secciones (puedes conectar con backend más adelante)
   const addresses = [
-    { id: 1, type: 'Casa', street: 'Calle Mayor 123', city: 'Madrid', zipCode: '28001', country: 'España', isDefault: true },
-    { id: 2, type: 'Trabajo', street: 'Av. de la Castellana 456', city: 'Madrid', zipCode: '28046', country: 'España', isDefault: false },
+    { id: 1, type: 'Casa', street: 'Calle Mayor 123', city: 'Lima', zipCode: '28001', country: 'Peru', isDefault: true },
+    { id: 2, type: 'Trabajo', street: 'Av. de la Castellana 456', city: 'Lima', zipCode: '28046', country: 'Peru', isDefault: false },
   ];
 
   const paymentMethods = [
@@ -135,11 +143,12 @@ const UserProfile = () => {
           </nav>
 
           <div className="sidebar-footer">
-            <button className="logout-link" type="button" onClick={logout}>
+            <button className="logout-link" type="button" onClick={handleLogout}>
               <LogOut size={20} className="menu-icon" />
               <span>Cerrar Sesión</span>
             </button>
-            <button className="logout-link" type="button" onClick={() => (window.location.href = '/')}>
+
+            <button className="logout-link inicio" type="button" onClick={() => (window.location.href = '/')}>
               <User size={20} className="menu-icon" />
               <span>Inicio</span>
             </button>

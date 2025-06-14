@@ -3,39 +3,139 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useUsuario } from '../../context/userContext';
 import { useCarrito } from '../../context/carContext';
 import Carrito from '../car/Carrito';
-
 import './Navbar.css';
+import logo from '../../assets/logo.png';
 
-const Navbar = () => {
+const SearchBar = ({ searchTerm, setSearchTerm, sugerencias, setSugerencias, navigate, setMenuOpen, abrirModal }) => (
+  <div className="search-wrapper">
+    <form
+      className="navbar-search"
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (searchTerm.trim()) {
+          navigate(`/buscar?q=${encodeURIComponent(searchTerm.trim())}`);
+          setMenuOpen && setMenuOpen(false);
+          setSugerencias([]);
+        }
+      }}
+      role="search"
+    >
+      <input
+        type="search"
+        placeholder="Buscar productos…"
+        className="navbar-search-input"
+        aria-label="Buscar productos"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+      <button type="submit" aria-label="Buscar" className="navbar-search-btn">
+        <i className="bi bi-search" style={{ fontSize: '18px', color: '#0033a0' }}></i>
+      </button>
+    </form>
+
+    {searchTerm && sugerencias.length > 0 && (
+      <ul className="search-suggestions">
+        {sugerencias.map(prod => (
+          <li
+            key={prod.id}
+            onClick={() => {
+              abrirModal(prod);
+              setSearchTerm('');
+              setSugerencias([]);
+              setMenuOpen && setMenuOpen(false);
+            }}
+          >
+            {prod.nombre}
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+);
+
+const CartCounter = ({ totalItems }) =>
+  totalItems > 0 ? <span className="cart-counter">{totalItems}</span> : null;
+
+const CartButton = ({ onClick, totalItems, className = "" }) => (
+  <button className={`icon-btn ${className}`} aria-label="Carrito" onClick={onClick}>
+    <i className="bi bi-basket3-fill" style={{ fontSize: '22px', color: '#0033a0' }}></i>
+    <CartCounter totalItems={totalItems} />
+  </button>
+);
+
+const UserButton = ({ isLoggedIn, nombreUsuario, handleLoginClick, handleLogout, isMobile = false, closeMenu }) => (
+  !isLoggedIn ? (
+    <button className="login-btn" onClick={handleLoginClick}>
+      <i className="bi bi-person-fill" style={{ marginRight: '6px' }}></i>
+      Iniciar sesión
+    </button>
+  ) : (
+    <div className="dropdown">
+      <button
+        className="btn btn-primary dropdown-toggle login-btn"
+        type="button"
+        id={isMobile ? "dropdownMenuButton" : "dropdownMenuButtonDesktop"}
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+      >
+        {isMobile ? nombreUsuario : `¡Hola!, ${nombreUsuario}`}
+      </button>
+      <ul className="dropdown-menu" aria-labelledby={isMobile ? "dropdownMenuButton" : "dropdownMenuButtonDesktop"}>
+        <li>
+          <Link className="dropdown-item" to="/perfil" onClick={isMobile ? closeMenu : undefined}>
+            Perfil
+          </Link>
+        </li>
+        <li>
+          <button className="dropdown-item" onClick={handleLogout}>
+            Cerrar sesión
+          </button>
+        </li>
+      </ul>
+    </div>
+  )
+);
+
+const Navbar = ({ abrirModal }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [mostrarCarrito, setMostrarCarrito] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sugerencias, setSugerencias] = useState([]);
+
   const navigate = useNavigate();
   const { usuario, logout } = useUsuario();
   const { carrito } = useCarrito();
-  const [searchTerm, setSearchTerm] = useState('');
-
 
   const isLoggedIn = Boolean(usuario);
   const nombreUsuario = usuario?.nombre || 'Usuario';
   const totalItems = carrito.reduce((acc, producto) => acc + producto.cantidad, 0);
 
-  // Efecto para detectar el scroll
   useEffect(() => {
     const handleScroll = () => {
-      const offset = window.scrollY;
-      if (offset > 100) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
+      setScrolled(window.scrollY > 100);
     };
-
     window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    const delay = setTimeout(async () => {
+      if (searchTerm.trim().length < 2) {
+        setSugerencias([]);
+        return;
+      }
+      try {
+        const res = await fetch(`http://localhost:3000/api/products?q=${encodeURIComponent(searchTerm)}`);
+        const data = await res.json();
+        setSugerencias(data.slice(0, 5));
+      } catch (err) {
+        console.error('Error buscando productos:', err);
+        setSugerencias([]);
+      }
+    }, 300);
+    return () => clearTimeout(delay);
+  }, [searchTerm]);
 
   const handleLoginClick = () => navigate('/login');
   const handleLogout = () => {
@@ -48,117 +148,49 @@ const Navbar = () => {
   const toggleCarrito = () => setMostrarCarrito(!mostrarCarrito);
   const closeMenu = () => setMenuOpen(false);
 
-  // Componente de búsqueda reutilizable
-  const SearchBar = () => (
-    <form className="navbar-search" onSubmit={(e) => e.preventDefault()} role="search">
-      <input
-        type="search"
-        placeholder="Buscar productos…"
-        className="navbar-search-input"
-        aria-label="Buscar productos"
-      />
-      <button type="submit" aria-label="Buscar" className="navbar-search-btn">
-        <i className="bi bi-search" style={{ fontSize: '18px', color: '#0033a0' }}></i>
-      </button>
-    </form>
-  );
-
-  // Componente de contador de carrito reutilizable
-  const CartCounter = () => (
-    totalItems > 0 && (
-      <span className="cart-counter">
-        {totalItems}
-      </span>
-    )
-  );
-
-  // Componente de botón de carrito reutilizable
-  const CartButton = ({ onClick, className = "" }) => (
-    <button
-      className={`icon-btn ${className}`}
-      aria-label="Carrito"
-      onClick={onClick}
-    >
-      <i className="bi bi-basket3-fill" style={{ fontSize: '22px', color: '#0033a0' }}></i>
-      <CartCounter />
-    </button>
-  );
-
-  // Componente de botón de usuario reutilizable
-  const UserButton = ({ isMobile = false }) => (
-    !isLoggedIn ? (
-      <button className="login-btn" onClick={handleLoginClick}>
-        <i className="bi bi-person-fill" style={{ marginRight: '6px' }}></i>
-        Iniciar sesión
-      </button>
-    ) : (
-      <div className="dropdown">
-        <button
-          className="btn btn-primary dropdown-toggle login-btn"
-          type="button"
-          id={isMobile ? "dropdownMenuButton" : "dropdownMenuButtonDesktop"}
-          data-bs-toggle="dropdown"
-          aria-expanded="false"
-        >
-          {isMobile ? nombreUsuario : `¡Hola!, ${nombreUsuario}`}
-        </button>
-        <ul className="dropdown-menu" aria-labelledby={isMobile ? "dropdownMenuButton" : "dropdownMenuButtonDesktop"}>
-          <li>
-            <Link
-              className="dropdown-item"
-              to="/perfil"
-              onClick={isMobile ? closeMenu : undefined}
-            >
-              Perfil
-            </Link>
-          </li>
-          <li>
-            <button className="dropdown-item" onClick={handleLogout}>
-              Cerrar sesión
-            </button>
-          </li>
-        </ul>
-      </div>
-    )
-  );
-
   return (
     <div className={`navbar-container${menuOpen ? ' menu-open' : ''}${scrolled ? ' scrolled' : ''}`}>
       {menuOpen && <div className="navbar-overlay" onClick={closeMenu}></div>}
 
       <nav className="navbar">
         <div className="navbar-main">
-          {/* Logo */}
           <div className="navbar-logo">
             <Link to="/" onClick={closeMenu}>
-              <img src="frontend/src/assets/logo.png" alt="logo" />
+              <img src={logo} alt="logo" />
             </Link>
           </div>
 
-          {/* Búsqueda escritorio/tablet */}
           <div className="navbar-search-desktop">
-            <SearchBar />
+            <SearchBar
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              sugerencias={sugerencias}
+              setSugerencias={setSugerencias}
+              navigate={navigate}
+              setMenuOpen={setMenuOpen}
+              abrirModal={abrirModal}
+            />
           </div>
 
-          {/* Botón hamburguesa */}
-          <button
-            className="navbar-burger"
-            onClick={toggleMenu}
-            aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
-          >
+          <button className="navbar-burger" onClick={toggleMenu} aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}>
             <span className="burger-bar"></span>
             <span className="burger-bar"></span>
             <span className="burger-bar"></span>
           </button>
 
-          {/* Contenido central (links) */}
           <div className={`navbar-content${menuOpen ? ' open' : ''}`}>
-            {/* Búsqueda móvil - Ahora solo aparece en el menú desplegable */}
             <div className="navbar-search-mobile">
-              <SearchBar />
+              <SearchBar
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                sugerencias={sugerencias}
+                setSugerencias={setSugerencias}
+                navigate={navigate}
+                setMenuOpen={setMenuOpen}
+                abrirModal={abrirModal}
+              />
             </div>
 
-            {/* Links */}
             <ul className="navbar-links">
               <li><Link to="/" onClick={closeMenu}>Inicio</Link></li>
               <li><Link to="/ofertas" onClick={closeMenu}>Ofertas</Link></li>
@@ -166,10 +198,16 @@ const Navbar = () => {
               <li><Link to="/contacto" onClick={closeMenu}>Contacto</Link></li>
             </ul>
 
-            {/* Acciones móviles */}
             <div className="navbar-mobile-actions">
-              <CartButton onClick={toggleCarrito} />
-              <UserButton isMobile={true} />
+              <CartButton onClick={toggleCarrito} totalItems={totalItems} />
+              <UserButton
+                isLoggedIn={isLoggedIn}
+                nombreUsuario={nombreUsuario}
+                handleLoginClick={handleLoginClick}
+                handleLogout={handleLogout}
+                isMobile={true}
+                closeMenu={closeMenu}
+              />
               {mostrarCarrito && (
                 <div className="carrito-dropdown">
                   <Carrito />
@@ -178,19 +216,21 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* Acciones escritorio */}
           <div className="navbar-actions">
             <div className="cart-container">
-              <CartButton onClick={toggleCarrito} />
-
+              <CartButton onClick={toggleCarrito} totalItems={totalItems} />
               {mostrarCarrito && (
                 <div className="carrito-dropdown">
                   <Carrito />
                 </div>
               )}
             </div>
-
-            <UserButton />
+            <UserButton
+              isLoggedIn={isLoggedIn}
+              nombreUsuario={nombreUsuario}
+              handleLoginClick={handleLoginClick}
+              handleLogout={handleLogout}
+            />
           </div>
         </div>
       </nav>

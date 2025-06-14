@@ -14,7 +14,7 @@ const categoriaColors = {
   8: '#FBBF24',
 };
 
-export default function ProductCard({ producto, onAdd }) {
+export default function ProductCard({ producto, onAdd, onClick }) {
   const [isHovered, setIsHovered] = useState(false);
   const [quantity, setQuantity] = useState(1);
 
@@ -23,16 +23,20 @@ export default function ProductCard({ producto, onAdd }) {
       className="product-card"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={() => onClick?.(producto)}
+      style={{ cursor: 'pointer' }}
     >
-      <div className="image-container"
-      style={{ backgroundColor: categoriaColors[producto.categoria?.id] || '#5EEAD4' }}>
+      <div
+        className="image-container"
+        style={{
+          backgroundColor: categoriaColors[producto.categoria?.id] || '#5EEAD4',
+        }}
+      >
         <img
           src={`http://localhost:3000/${producto.imagen}`}
           alt={producto.nombre}
           className={`product-image ${isHovered ? 'hovered' : ''}`}
-          
         />
-        
       </div>
 
       <div className="product-info">
@@ -41,7 +45,13 @@ export default function ProductCard({ producto, onAdd }) {
         <p className="product-description">{producto.descripcion}</p>
         <p className="product-price">S/ {parseFloat(producto.precio).toFixed(2)}</p>
 
-        <button onClick={() => onAdd({ ...producto, cantidad: quantity })} className="add-cart-btn">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onAdd({ ...producto, cantidad: quantity });
+          }}
+          className="add-cart-btn"
+        >
           <ShoppingCart size={18} />
           <span>Añadir al carrito</span>
         </button>
@@ -49,3 +59,4 @@ export default function ProductCard({ producto, onAdd }) {
     </div>
   );
 }
+
