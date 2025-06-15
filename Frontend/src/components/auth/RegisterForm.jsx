@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Swal from 'sweetalert2';
 import './AuthStyles.css';
 
 function RegisterForm({ switchToLogin }) {
@@ -9,7 +10,7 @@ function RegisterForm({ switchToLogin }) {
     confirmPassword: '',
     address: ''
   });
-  
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -17,47 +18,65 @@ function RegisterForm({ switchToLogin }) {
       [name]: value
     });
   };
-  
+
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (formData.password !== formData.confirmPassword) {
-    alert('Las contraseñas no coinciden');
-    return;
-  }
-
-  try {
-    const response = await fetch('http://localhost:3000/api/usuarios/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        nombre: formData.name,
-        email: formData.email,
-        password: formData.password,
-        direccion: formData.address || ""
-       
-      })
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      alert('Registro exitoso');
-      switchToLogin();
-    } else {
-      alert(data.message || 'Error al registrarse');
+    if (formData.password !== formData.confirmPassword) {
+      Swal.fire({
+        icon: 'error',
+        title: '¡Oops!',
+        text: 'Las contraseñas no coinciden',
+      });
+      return;
     }
-  } catch (error) {
-    console.error('Error en el registro:', error);
-    alert('Ocurrió un error al conectar con el servidor');
-  }
-};
 
-  
+    try {
+      const response = await fetch('http://localhost:3000/api/usuarios/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nombre: formData.name,
+          email: formData.email,
+          password: formData.password,
+          direccion: formData.address || ""
+
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        Swal.fire({
+          icon: 'success',
+          title: '¡Registro exitoso!',
+          text: 'Ahora puedes iniciar sesión',
+          confirmButtonText: 'OK'
+        }).then(() => {
+          switchToLogin(); // Redirige al login después de cerrar el alert
+        });
+      } else {
+        Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: data.message || 'Error al registrarse',
+      });
+      }
+    } catch (error) {
+      console.error('Error en el registro:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Ocurrió un error al conectar con el servidor',
+      });
+    }
+  };
+
+
   return (
     <div className="form-container">
       <h2 className="form-title">Crear Cuenta</h2>
-      
+
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="register-name">Nombre completo</label>
@@ -71,7 +90,7 @@ function RegisterForm({ switchToLogin }) {
             required
           />
         </div>
-        
+
         <div className="form-group">
           <label htmlFor="register-email">Correo electrónico</label>
           <input
@@ -84,7 +103,7 @@ function RegisterForm({ switchToLogin }) {
             required
           />
         </div>
-        
+
         <div className="form-group">
           <label htmlFor="register-password">Contraseña</label>
           <input
@@ -97,7 +116,7 @@ function RegisterForm({ switchToLogin }) {
             required
           />
         </div>
-        
+
         <div className="form-group">
           <label htmlFor="register-confirmPassword">Confirmar contraseña</label>
           <input
@@ -110,11 +129,11 @@ function RegisterForm({ switchToLogin }) {
             required
           />
         </div>
-        
+
         <button type="submit" className="submit-button">
           Registrarse
         </button>
-        
+
         <div className="form-footer">
           <p>
             ¿Ya tienes cuenta?

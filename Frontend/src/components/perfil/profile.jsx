@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Edit3 } from 'lucide-react';
 import './styleperfil.css';
+import Swal from 'sweetalert2';
 
 const Profile = ({ userData, setUserData }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -46,10 +47,18 @@ const Profile = ({ userData, setUserData }) => {
       setUserData(result.usuario); // Actualiza el estado padre con datos nuevos
 
       setIsEditing(false);
-      alert('Perfil actualizado correctamente');
+      Swal.fire({
+        icon: 'success',
+        title: 'Éxito',
+        text: 'Perfil actualizado correctamente',
+      });
     } catch (error) {
       console.error(error);
-      alert('Error al guardar el perfil');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Error al guardar el perfil',
+      });
     }
   };
 

@@ -1,18 +1,22 @@
-/* Variables para reutilizar colores y valores */
+/* =============================================
+   VARIABLES Y RESET
+   ============================================= */
 :root {
   --navbar-bg: #FFD100;
   --navbar-text: #0033a0;
   --navbar-text-hover: #0056d6;
   --navbar-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
   --search-bg: #ffffff;
-  --button-bg: #0033a0 ;
+  --button-bg: #0033a0;
   --button-text: #ffffff;
   --button-hover: #001e5a;
   --button-text-hover: #FFD100;
   --transition-speed: 0.3s;
 }
 
-/* Base del navbar */
+/* =============================================
+   ESTRUCTURA PRINCIPAL
+   ============================================= */
 .navbar-container {
   position: fixed;
   top: 20px;
@@ -22,15 +26,6 @@
   justify-content: center;
   z-index: 9999;
   transition: top var(--transition-speed) ease-in-out;
-}
-
-/* Estado scrolled - pegado arriba */
-.navbar-container.scrolled {
-  top: 0;
-}
-
-.navbar-container.scrolled .navbar {
-  border-radius: 0 0 24px 24px;
 }
 
 .navbar {
@@ -53,7 +48,18 @@
   position: relative;
 }
 
-/* Logo */
+/* Estado scrolled */
+.navbar-container.scrolled {
+  top: 0;
+}
+
+.navbar-container.scrolled .navbar {
+  border-radius: 0 0 24px 24px;
+}
+
+/* =============================================
+   LOGO
+   ============================================= */
 .navbar-logo {
   flex: 0 0 auto;
   display: flex;
@@ -65,7 +71,9 @@
   margin-right: 10px;
 }
 
-/* Barra de búsqueda */
+/* =============================================
+   BARRA DE BÚSQUEDA
+   ============================================= */
 .navbar-search {
   display: flex;
   align-items: center;
@@ -111,7 +119,9 @@
   margin: 0 auto 18px;
 }
 
-/* Links y contenido central */
+/* =============================================
+   ENLACES Y CONTENIDO
+   ============================================= */
 .navbar-content {
   display: flex;
   align-items: center;
@@ -121,7 +131,7 @@
 .navbar-links {
   display: flex;
   align-items: center;
-  gap: 25px;
+  gap: 50px;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -132,7 +142,7 @@
   color: var(--navbar-text);
   text-decoration: none;
   font-size: 1rem;
-  font-weight: bold;
+  font-weight: 600;
   font-family: 'Montserrat', Arial, sans-serif;
   transition: color 0.2s;
   padding: 2px 0;
@@ -142,7 +152,9 @@
   color: var(--navbar-text-hover);
 }
 
-/* Botones y acciones */
+/* =============================================
+   BOTONES Y ACCIONES
+   ============================================= */
 .navbar-actions {
   display: flex;
   align-items: center;
@@ -209,7 +221,9 @@
   color: var(--button-text-hover);
 }
 
-/* Menú hamburguesa */
+/* =============================================
+   MENÚ HAMBURGUESA
+   ============================================= */
 .navbar-burger {
   display: none;
   flex-direction: column;
@@ -230,7 +244,9 @@
   transition: all 0.3s;
 }
 
-/* Acciones móviles */
+/* =============================================
+   ACCIONES MÓVILES
+   ============================================= */
 .navbar-mobile-actions {
   display: none;
   flex-direction: column;
@@ -240,7 +256,9 @@
   margin-top: 12px;
 }
 
-/* Overlay para cuando el menú está abierto */
+/* =============================================
+   OVERLAY MENÚ MÓVIL
+   ============================================= */
 .navbar-overlay {
   position: fixed;
   top: 0;
@@ -252,14 +270,8 @@
   animation: fadeIn 0.2s forwards;
 }
 
-@keyframes fadeIn {
-  to {
-    opacity: 1;
-  }
-}
-
 /* =============================================
-   SUGGESTIONS (AUTOCOMPLETE DE BÚSQUEDA)
+   AUTOCOMPLETADO DE BÚSQUEDA
    ============================================= */
 .search-suggestions {
   position: absolute;
@@ -279,7 +291,6 @@
   animation: fadeIn 0.2s ease-in-out;
 }
 
-/* Elemento individual */
 .search-suggestions li {
   padding: 0.75rem 1rem;
   text-align: left;
@@ -292,22 +303,15 @@
   gap: 0.5rem;
 }
 
-/* Hover */
 .search-suggestions li:hover {
   background-color: #f3f4f6;
   color: #0033a0;
   font-weight: 500;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .search-suggestions {
-    max-height: 220px;
-    font-size: 0.9rem;
-  }
-}
-
-/* Animación */
+/* =============================================
+   ANIMACIONES
+   ============================================= */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -319,10 +323,8 @@
   }
 }
 
-
-
 /* =============================================
-   MEDIA QUERIES
+   MEDIA QUERIES (Ordenadas de menor a mayor)
    ============================================= */
 
 /* Extra small - xs: <576px (móvil) */
@@ -367,18 +369,15 @@
     font-size: 0.85rem;
   }
   
-  /* Mostrar hamburguesa */
   .navbar-burger {
     display: flex;
   }
   
-  /* Ocultar elementos desktop */
   .navbar-actions,
   .navbar-search-desktop {
     display: none;
   }
   
-  /* Convertir navbar-content en menú desplegable */
   .navbar-content {
     display: none;
     position: absolute;
@@ -406,7 +405,6 @@
     align-items: center;
   }
   
-  /* Mostrar elementos móviles */
   .navbar-mobile-actions,
   .navbar-search-mobile {
     display: flex;
@@ -425,18 +423,15 @@
     border-radius: 0 0 18px 18px;
   }
   
-  /* Mostrar hamburguesa */
   .navbar-burger {
     display: flex;
   }
   
-  /* Ocultar elementos desktop */
   .navbar-actions,
   .navbar-search-desktop {
     display: none;
   }
   
-  /* Convertir navbar-content en menú desplegable */
   .navbar-content {
     display: none;
     position: absolute;
@@ -464,7 +459,6 @@
     align-items: center;
   }
   
-  /* Mostrar elementos móviles */
   .navbar-mobile-actions,
   .navbar-search-mobile {
     display: flex;
@@ -478,17 +472,14 @@
     height: 70px;
   }
   
-  /* Mostrar hamburguesa */
   .navbar-burger {
     display: flex;
   }
   
-  /* Ocultar elementos desktop */
   .navbar-actions {
     display: none;
   }
   
-  /* Convertir navbar-content en menú desplegable */
   .navbar-content {
     display: none;
     position: absolute;
@@ -516,12 +507,10 @@
     align-items: center;
   }
   
-  /* Mostrar elementos móviles */
   .navbar-mobile-actions {
     display: flex;
   }
   
-  /* Ajustes del buscador */
   .navbar-search input {
     width: 140px;
   }

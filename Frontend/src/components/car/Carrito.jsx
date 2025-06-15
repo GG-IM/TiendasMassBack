@@ -3,6 +3,7 @@ import { useCarrito } from '../../context/carContext';
 import { useUsuario } from '../../context/userContext';
 import { useNavigate } from 'react-router-dom';
 import './car.css';  // Importa el CSS
+import Swal from 'sweetalert2';
 
 const Carrito = () => {
   const {
@@ -19,7 +20,12 @@ const Carrito = () => {
 
   const handlePagar = () => {
     if (!usuario) {
-      alert('Debes iniciar sesión para realizar el pago.');
+      Swal.fire({
+        icon: 'warning',
+        title: 'Debes iniciar sesión',
+        text: 'Debes iniciar sesión para realizar el pago.',
+        confirmButtonText: 'OK'
+      });
       return;
     }
     navigate('/checkout');

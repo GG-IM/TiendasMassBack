@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUsuario } from '../../context/userContext';
 import './AuthStyles.css';
+import Swal from 'sweetalert2';
 
 function LoginForm({ switchToRegister }) {
   const navigate = useNavigate();
@@ -45,10 +46,18 @@ function LoginForm({ switchToRegister }) {
 
         navigate('/');
       } else {
-        alert(data.message || 'Error al iniciar sesión');
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: data.message || 'Error al iniciar sesión'
+        });
       }
     } catch (error) {
-      alert('Error de red al iniciar sesión');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error de red',
+        text: 'Error de red al iniciar sesión'
+      });
       console.error(error);
     }
   };

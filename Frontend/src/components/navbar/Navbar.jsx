@@ -6,70 +6,105 @@ import Carrito from '../car/Carrito';
 import './Navbar.css';
 import logo from '../../assets/logo.png';
 
-const SearchBar = ({ searchTerm, setSearchTerm, sugerencias, setSugerencias, navigate, setMenuOpen, abrirModal }) => (
-  <div className="search-wrapper">
-    <form
-      className="navbar-search"
-      onSubmit={(e) => {
-        e.preventDefault();
-        if (searchTerm.trim()) {
-          navigate(`/buscar?q=${encodeURIComponent(searchTerm.trim())}`);
-          setMenuOpen && setMenuOpen(false);
-          setSugerencias([]);
-        }
-      }}
-      role="search"
-    >
-      <input
-        type="search"
-        placeholder="Buscar productos…"
-        className="navbar-search-input"
-        aria-label="Buscar productos"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-      <button type="submit" aria-label="Buscar" className="navbar-search-btn">
-        <i className="bi bi-search" style={{ fontSize: '18px', color: '#0033a0' }}></i>
-      </button>
-    </form>
+// Componente SearchBar separado
+const SearchBar = ({ 
+  searchTerm, 
+  setSearchTerm, 
+  sugerencias, 
+  setSugerencias, 
+  navigate, 
+  setMenuOpen, 
+  abrirModal 
+}) => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      navigate(`/buscar?q=${encodeURIComponent(searchTerm.trim())}`);
+      setMenuOpen?.(false);
+      setSugerencias([]);
+    }
+  };
 
-    {searchTerm && sugerencias.length > 0 && (
-      <ul className="search-suggestions">
-        {sugerencias.map(prod => (
-          <li
-            key={prod.id}
-            onClick={() => {
-              abrirModal(prod);
-              setSearchTerm('');
-              setSugerencias([]);
-              setMenuOpen && setMenuOpen(false);
-            }}
-          >
-            {prod.nombre}
-          </li>
-        ))}
-      </ul>
-    )}
-  </div>
+  return (
+    <div className="search-wrapper">
+      <form
+        className="navbar-search"
+        onSubmit={handleSubmit}
+        role="search"
+      >
+        <input
+          type="search"
+          placeholder="Buscar productos…"
+          className="navbar-search-input"
+          aria-label="Buscar productos"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <button type="submit" aria-label="Buscar" className="navbar-search-btn">
+          <i className="bi bi-search" style={{ fontSize: '18px', color: '#0033a0' }}></i>
+        </button>
+      </form>
+
+      {searchTerm && sugerencias.length > 0 && (
+        <ul className="search-suggestions">
+          {sugerencias.map(prod => (
+            <li
+              key={prod.id}
+              onClick={() => {
+                abrirModal(prod);
+                setSearchTerm('');
+                setSugerencias([]);
+                setMenuOpen?.(false);
+              }}
+            >
+              {prod.nombre}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
+
+// Componente CartCounter separado
+const CartCounter = ({ totalItems }) => (
+  totalItems > 0 ? <span className="cart-counter">{totalItems}</span> : null
 );
 
-const CartCounter = ({ totalItems }) =>
-  totalItems > 0 ? <span className="cart-counter">{totalItems}</span> : null;
-
+// Componente CartButton separado
 const CartButton = ({ onClick, totalItems, className = "" }) => (
-  <button className={`icon-btn ${className}`} aria-label="Carrito" onClick={onClick}>
-    <i className="bi bi-basket3-fill" style={{ fontSize: '22px', color: '#0033a0' }}></i>
+  <button 
+    className={`icon-btn ${className}`} 
+    aria-label="Carrito" 
+    onClick={onClick}
+  >
+    <i 
+      className="bi bi-basket3-fill" 
+      style={{ fontSize: '22px', color: '#0033a0' }}
+    ></i>
     <CartCounter totalItems={totalItems} />
   </button>
 );
 
-const UserButton = ({ isLoggedIn, nombreUsuario, handleLoginClick, handleLogout, isMobile = false, closeMenu }) => (
-  !isLoggedIn ? (
-    <button className="login-btn" onClick={handleLoginClick}>
-      <i className="bi bi-person-fill" style={{ marginRight: '6px' }}></i>
-      Iniciar sesión
-    </button>
-  ) : (
+// Componente UserButton separado
+const UserButton = ({ 
+  isLoggedIn, 
+  nombreUsuario, 
+  handleLoginClick, 
+  handleLogout, 
+  isMobile = false, 
+  closeMenu 
+}) => {
+  if (!isLoggedIn) {
+    return (
+      <button className="login-btn" onClick={handleLoginClick}>
+        <i className="bi bi-person-fill" style={{ marginRight: '6px' }}></i>
+        Iniciar sesión
+      </button>
+    );
+  }
+
+  return (
     <div className="dropdown">
       <button
         className="btn btn-primary dropdown-toggle login-btn"
@@ -93,9 +128,80 @@ const UserButton = ({ isLoggedIn, nombreUsuario, handleLoginClick, handleLogout,
         </li>
       </ul>
     </div>
-  )
+  );
+};
+
+// Componente BurgerButton separado
+const BurgerButton = ({ menuOpen, toggleMenu }) => (
+  <button 
+    className="navbar-burger" 
+    onClick={toggleMenu} 
+    aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
+  >
+    <span className="burger-bar"></span>
+    <span className="burger-bar"></span>
+    <span className="burger-bar"></span>
+  </button>
 );
 
+// Componente MobileMenu separado
+const MobileMenu = ({ 
+  menuOpen, 
+  searchTerm, 
+  setSearchTerm, 
+  sugerencias, 
+  setSugerencias, 
+  navigate, 
+  setMenuOpen, 
+  abrirModal, 
+  closeMenu, 
+  toggleCarrito, 
+  totalItems, 
+  isLoggedIn, 
+  nombreUsuario, 
+  handleLoginClick, 
+  handleLogout, 
+  mostrarCarrito 
+}) => (
+  <div className={`navbar-content${menuOpen ? ' open' : ''}`}>
+    <div className="navbar-search-mobile">
+      <SearchBar
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        sugerencias={sugerencias}
+        setSugerencias={setSugerencias}
+        navigate={navigate}
+        setMenuOpen={setMenuOpen}
+        abrirModal={abrirModal}
+      />
+    </div>
+
+    <ul className="navbar-links">
+      <li><Link to="/" onClick={closeMenu}>Inicio</Link></li>
+      <li><Link to="/categorias" onClick={closeMenu}>Categorías</Link></li>
+      <li><Link to="/contacto" onClick={closeMenu}>Contacto</Link></li>
+    </ul>
+
+    <div className="navbar-mobile-actions">
+      <CartButton onClick={toggleCarrito} totalItems={totalItems} />
+      <UserButton
+        isLoggedIn={isLoggedIn}
+        nombreUsuario={nombreUsuario}
+        handleLoginClick={handleLoginClick}
+        handleLogout={handleLogout}
+        isMobile={true}
+        closeMenu={closeMenu}
+      />
+      {mostrarCarrito && (
+        <div className="carrito-dropdown">
+          <Carrito />
+        </div>
+      )}
+    </div>
+  </div>
+);
+
+// Componente Navbar principal
 const Navbar = ({ abrirModal }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [mostrarCarrito, setMostrarCarrito] = useState(false);
@@ -172,49 +278,26 @@ const Navbar = ({ abrirModal }) => {
             />
           </div>
 
-          <button className="navbar-burger" onClick={toggleMenu} aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}>
-            <span className="burger-bar"></span>
-            <span className="burger-bar"></span>
-            <span className="burger-bar"></span>
-          </button>
+          <BurgerButton menuOpen={menuOpen} toggleMenu={toggleMenu} />
 
-          <div className={`navbar-content${menuOpen ? ' open' : ''}`}>
-            <div className="navbar-search-mobile">
-              <SearchBar
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-                sugerencias={sugerencias}
-                setSugerencias={setSugerencias}
-                navigate={navigate}
-                setMenuOpen={setMenuOpen}
-                abrirModal={abrirModal}
-              />
-            </div>
-
-            <ul className="navbar-links">
-              <li><Link to="/" onClick={closeMenu}>Inicio</Link></li>
-              <li><Link to="/ofertas" onClick={closeMenu}>Ofertas</Link></li>
-              <li><Link to="/categorias" onClick={closeMenu}>Categorías</Link></li>
-              <li><Link to="/contacto" onClick={closeMenu}>Contacto</Link></li>
-            </ul>
-
-            <div className="navbar-mobile-actions">
-              <CartButton onClick={toggleCarrito} totalItems={totalItems} />
-              <UserButton
-                isLoggedIn={isLoggedIn}
-                nombreUsuario={nombreUsuario}
-                handleLoginClick={handleLoginClick}
-                handleLogout={handleLogout}
-                isMobile={true}
-                closeMenu={closeMenu}
-              />
-              {mostrarCarrito && (
-                <div className="carrito-dropdown">
-                  <Carrito />
-                </div>
-              )}
-            </div>
-          </div>
+          <MobileMenu
+            menuOpen={menuOpen}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            sugerencias={sugerencias}
+            setSugerencias={setSugerencias}
+            navigate={navigate}
+            setMenuOpen={setMenuOpen}
+            abrirModal={abrirModal}
+            closeMenu={closeMenu}
+            toggleCarrito={toggleCarrito}
+            totalItems={totalItems}
+            isLoggedIn={isLoggedIn}
+            nombreUsuario={nombreUsuario}
+            handleLoginClick={handleLoginClick}
+            handleLogout={handleLogout}
+            mostrarCarrito={mostrarCarrito}
+          />
 
           <div className="navbar-actions">
             <div className="cart-container">
