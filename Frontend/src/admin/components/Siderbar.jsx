@@ -1,15 +1,18 @@
 import React from 'react';
-import { Home, Package, Folder, Users, ShoppingCart, Settings, CreditCard, Menu } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { Home, Package, Folder, Users, ShoppingCart, Settings, CreditCard } from 'lucide-react';
 
-const Sidebar = ({ collapsed, activeView, onViewChange, onToggle }) => {
+const Sidebar = ({ collapsed, onToggle }) => {
+  const location = useLocation(); // Detectar ruta activa
+
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: Home },
-    { id: 'products', label: 'Productos', icon: Package },
-    { id: 'categories', label: 'Categorías', icon: Folder },
-    { id: 'users', label: 'Usuarios', icon: Users },
-    { id: 'orders', label: 'Pedidos', icon: ShoppingCart },
-    { id: 'statuses', label: 'Estados', icon: Settings },
-    { id: 'payments', label: 'Métodos de Pago', icon: CreditCard },
+    { to: '/admin/dashboard', label: 'Dashboard', icon: Home },
+    { to: '/admin/productos', label: 'Productos', icon: Package },
+    { to: '/admin/categorias', label: 'Categorías', icon: Folder },
+    { to: '/admin/usuarios', label: 'Usuarios', icon: Users },
+    { to: '/admin/reportes', label: 'Pedidos', icon: ShoppingCart },
+    { to: '/admin/estados', label: 'Estados', icon: Settings },
+    { to: '/admin/metodos-pago', label: 'Métodos de Pago', icon: CreditCard },
   ];
 
   return (
@@ -20,23 +23,21 @@ const Sidebar = ({ collapsed, activeView, onViewChange, onToggle }) => {
           {!collapsed && <div className="logo-text">Mass Admin</div>}
         </div>
       </div>
-      
+
       <ul className="sidebar-nav">
         {menuItems.map((item) => {
           const IconComponent = item.icon;
+          const isActive = location.pathname === item.to;
+
           return (
-            <li key={item.id} className="nav-item">
-              <a
-                href="#"
-                className={`nav-link ${activeView === item.id ? 'active' : ''}`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  onViewChange(item.id);
-                }}
+            <li key={item.to} className="nav-item">
+              <Link
+                to={item.to}
+                className={`nav-link ${isActive ? 'active' : ''}`}
               >
                 <IconComponent className="nav-icon" />
                 {!collapsed && <span className="nav-text">{item.label}</span>}
-              </a>
+              </Link>
             </li>
           );
         })}

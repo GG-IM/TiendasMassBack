@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Eye, Download, Search, Filter } from 'lucide-react';
-import { mockOrders } from '../../data/mockData';
+import { mockOrders } from '../../data/mockData.jsx';
 
 const OrderReports = () => {
   const [orders, setOrders] = useState(mockOrders);

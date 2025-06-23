@@ -6,16 +6,14 @@ import Swal from 'sweetalert2';
 const Profile = ({ userData, setUserData }) => {
   const [isEditing, setIsEditing] = useState(false);
 
-  // Inicializamos formData con los atributos de Usuario
   const [formData, setFormData] = useState({
     nombre: '',
     telefono: '',
     ciudad: '',
     direccion: '',
-    codigoPostal: '',
+    codigoPostal: ''
   });
 
-  // Cuando cambia userData, actualizamos formData para mostrar datos
   useEffect(() => {
     if (userData) {
       setFormData({
@@ -23,7 +21,7 @@ const Profile = ({ userData, setUserData }) => {
         telefono: userData.telefono || '',
         ciudad: userData.ciudad || '',
         direccion: userData.direccion || '',
-        codigoPostal: userData.codigoPostal || '',
+        codigoPostal: userData.codigoPostal || ''
       });
     }
   }, [userData]);
@@ -34,9 +32,14 @@ const Profile = ({ userData, setUserData }) => {
 
   const handleSave = async () => {
     try {
+      const token = localStorage.getItem('token');
+
       const response = await fetch(`http://localhost:3000/api/usuarios/update/${userData.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(formData),
       });
 
@@ -44,7 +47,9 @@ const Profile = ({ userData, setUserData }) => {
 
       const result = await response.json();
 
-      setUserData(result.usuario); // Actualiza el estado padre con datos nuevos
+      // ✅ Actualiza userData y formData
+      setUserData(result.usuario);
+      setFormData(result.usuario);
 
       setIsEditing(false);
       Swal.fire({
@@ -62,17 +67,18 @@ const Profile = ({ userData, setUserData }) => {
     }
   };
 
+
+
   const handleToggleEdit = () => {
     if (isEditing) {
       handleSave();
     } else {
-      // Recarga datos para evitar inconsistencias si se canceló edición
       setFormData({
         nombre: userData.nombre || '',
         telefono: userData.telefono || '',
         ciudad: userData.ciudad || '',
         direccion: userData.direccion || '',
-        codigoPostal: userData.codigoPostal || '',
+        codigoPostal: userData.codigoPostal || ''
       });
       setIsEditing(true);
     }
@@ -167,6 +173,9 @@ const Profile = ({ userData, setUserData }) => {
               )}
             </div>
           </div>
+
+          
+
         </div>
       </div>
     </div>

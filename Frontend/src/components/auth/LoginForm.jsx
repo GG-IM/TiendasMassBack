@@ -1,6 +1,7 @@
+// LoginForm.jsx - Versión mejorada con mejor manejo de errores
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUsuario } from '../../context/userContext';
+import { useUsuario } from '../../context/UserContext';
 import './AuthStyles.css';
 import Swal from 'sweetalert2';
 
@@ -9,9 +10,10 @@ function LoginForm({ switchToRegister }) {
   const { login } = useUsuario();
   const [formData, setFormData] = useState({
     email: '',
-    contraseña: '', 
+    password: '',
     remember: false
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -23,42 +25,115 @@ function LoginForm({ switchToRegister }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
     try {
+      console.log('🚀 Iniciando login...');
+
       const response = await fetch('http://localhost:3000/api/usuarios/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: formData.email,
-          password: formData.contraseña 
+          email: formData.email.trim(),
+          password: formData.password
         })
       });
 
       const data = await response.json();
-      console.log('response', data);
+      console.log('📨 Respuesta del servidor:', {
+        status: response.status,
+        ok: response.ok,
+        hasToken: !!data.token
+      });
 
-      if (response.ok && data.email) {
-        login(data);
+      if (response.ok && data.token) {
+        console.log('✅ Datos válidos recibidos, procesando login...');
 
-        if (formData.remember) {
-          localStorage.setItem('usuario', JSON.stringify(data));
+        try {
+          // ✅ El contexto maneja automáticamente ambas estructuras
+          await login(data, formData.remember);
+
+          console.log('✅ Context actualizado exitosamente');
+
+          // Mostrar mensaje de éxito
+          await Swal.fire({
+            icon: 'success',
+            title: '¡Bienvenido!',
+            text: `Hola ${data.nombre || data.usuario?.nombre || 'Usuario'}`,
+            timer: 1500,
+            showConfirmButton: false
+          });
+
+          const rol = typeof data.usuario?.rol === 'string'
+            ? data.usuario.rol
+            : data.usuario?.rol?.nombre || data.rol;
+
+
+          if (rol === 'admin') {
+            await Swal.fire({
+              icon: 'info',
+              title: 'Redirigiendo a panel de administrador',
+              timer: 1200,
+              showConfirmButton: false
+            });
+            navigate('/admin');
+          } else {
+            navigate('/');
+          }
+
+        } catch (contextError) {
+          console.error('❌ Error en el contexto:', contextError);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error interno',
+            text: 'Error al procesar los datos de usuario'
+          });
         }
 
-        navigate('/');
       } else {
+        // Manejar errores del servidor
+        const errorMessage = data.message || data.error || 'Credenciales inválidas';
+
+        console.log('❌ Login falló:', {
+          status: response.status,
+          message: errorMessage
+        });
+
         Swal.fire({
           icon: 'error',
-          title: 'Error',
-          text: data.message || 'Error al iniciar sesión'
+          title: getErrorTitle(response.status),
+          text: errorMessage
         });
       }
+
     } catch (error) {
+      console.error('❌ Error de red:', error);
+
+      let errorMessage = 'Error de conexión. Verifica tu internet.';
+
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        errorMessage = 'No se puede conectar al servidor. ¿Está funcionando el backend?';
+      }
+
       Swal.fire({
         icon: 'error',
-        title: 'Error de red',
-        text: 'Error de red al iniciar sesión'
+        title: 'Error de conexión',
+        text: errorMessage
       });
-      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // ✅ Función auxiliar para títulos de error más descriptivos
+  const getErrorTitle = (status) => {
+    switch (status) {
+      case 400: return 'Datos inválidos';
+      case 401: return 'Credenciales incorrectas';
+      case 403: return 'Acceso denegado';
+      case 404: return 'Usuario no encontrado';
+      case 500: return 'Error del servidor';
+      default: return 'Error de autenticación';
     }
   };
 
@@ -76,6 +151,7 @@ function LoginForm({ switchToRegister }) {
             value={formData.email}
             onChange={handleInputChange}
             placeholder="ejemplo@correo.com"
+            disabled={isLoading}
             required
           />
         </div>
@@ -85,10 +161,11 @@ function LoginForm({ switchToRegister }) {
           <input
             id="login-password"
             type="password"
-            name="contraseña" // ✅ Debe coincidir con el backend
-            value={formData.contraseña}
+            name="password"
+            value={formData.password}
             onChange={handleInputChange}
             placeholder="********"
+            disabled={isLoading}
             required
           />
         </div>
@@ -101,16 +178,23 @@ function LoginForm({ switchToRegister }) {
               type="checkbox"
               checked={formData.remember}
               onChange={handleInputChange}
+              disabled={isLoading}
             />
             <label htmlFor="remember">Recordarme</label>
           </div>
           <div className="forgot-password">
-            <a href="#">¿Olvidaste tu contraseña?</a>
+            <a href="#" onClick={(e) => e.preventDefault()}>
+              ¿Olvidaste tu contraseña?
+            </a>
           </div>
         </div>
 
-        <button type="submit" className="submit-button">
-          Iniciar Sesión
+        <button
+          type="submit"
+          className="submit-button"
+          disabled={isLoading}
+        >
+          {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
         </button>
 
         <div className="form-footer">
@@ -120,6 +204,7 @@ function LoginForm({ switchToRegister }) {
               type="button"
               onClick={switchToRegister}
               className="switch-form-button"
+              disabled={isLoading}
             >
               Regístrate
             </button>

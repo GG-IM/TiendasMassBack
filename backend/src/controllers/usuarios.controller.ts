@@ -3,6 +3,13 @@ import bcrypt from 'bcryptjs';
 import { AppDataSource } from '../config/data-source';
 import { Usuario } from '../entities/Usuario.entity';
 import { Estado } from '../entities/Estado.entity';
+import { Rol } from '../entities/Rol.entity';
+//JWT
+import fs from 'fs';
+import path from 'path';
+import jwt from 'jsonwebtoken';
+
+const privateKey = fs.readFileSync(path.join(__dirname, '..', 'keys', 'private.key'), 'utf8');
 
 const usuarioRepository = AppDataSource.getRepository(Usuario);
 const estadoRepository = AppDataSource.getRepository(Estado);
@@ -48,25 +55,52 @@ export const getUsuarioById = async (req: Request, res: Response): Promise<void>
 };
 
 // Registrar nuevo usuario
+// Registrar nuevo usuario
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { nombre, email, password, direccion, estadoId, telefono, ciudad, codigoPostal } = req.body;
+    const {
+      nombre,
+      email,
+      password,
+      direccion,
+      estadoId = 1,  
+      telefono,
+      ciudad,
+      codigoPostal,
+      rolId = 2  
+    } = req.body;
 
+    // Validaciones de entrada
+    if (!nombre || !email || !password) {
+      res.status(400).json({ message: 'Nombre, email y contraseña son requeridos' });
+      return;
+    }
 
+    // Verifica si el usuario ya existe
     const usuarioExistente = await usuarioRepository.findOneBy({ email });
     if (usuarioExistente) {
       res.status(400).json({ message: 'El usuario ya existe' });
       return;
     }
 
-    const estado = await estadoRepository.findOneBy({ id: estadoId });
-    if (!estado) {
-      res.status(400).json({ message: 'Estado no válido' });
+    // Busca el rol por ID (más eficiente)
+    const rol = await AppDataSource.getRepository(Rol).findOneBy({ id: rolId });
+    if (!rol) {
+      res.status(400).json({ message: `Rol con ID ${rolId} no encontrado` });
       return;
     }
 
+    // Busca el estado por ID
+    const estado = await estadoRepository.findOneBy({ id: estadoId });
+    if (!estado) {
+      res.status(400).json({ message: `Estado con ID ${estadoId} no encontrado` });
+      return;
+    }
+
+    // Hashea la contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Crea el nuevo usuario
     const nuevoUsuario = usuarioRepository.create({
       nombre,
       email,
@@ -76,11 +110,13 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       telefono,
       ciudad,
       codigoPostal,
+      rol
     });
 
-
+    // Guarda en la base de datos
     const usuarioGuardado = await usuarioRepository.save(nuevoUsuario);
 
+    // Respuesta completa con objetos relacionados
     res.status(201).json({
       id: usuarioGuardado.id,
       nombre: usuarioGuardado.nombre,
@@ -89,13 +125,22 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       telefono: usuarioGuardado.telefono,
       ciudad: usuarioGuardado.ciudad,
       codigoPostal: usuarioGuardado.codigoPostal,
-      estado: usuarioGuardado.estado.nombre,
+      estado: {
+        id: usuarioGuardado.estado.id,
+        nombre: usuarioGuardado.estado.nombre
+      },
+      rol: {
+        id: usuarioGuardado.rol.id,
+        nombre: usuarioGuardado.rol.nombre
+      }
     });
 
   } catch (error: any) {
-    res.status(500).json({ message: error.message });
+    console.error('Error en register:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
   }
 };
+
 
 // Iniciar sesión
 export const login = async (req: Request, res: Response): Promise<void> => {
@@ -104,7 +149,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     const usuario = await usuarioRepository.findOne({
       where: { email },
-      relations: ['estado'],
+      relations: ['estado', 'rol'],
     });
 
     if (!usuario) {
@@ -118,21 +163,42 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    // Crear token JWT
+    const token = jwt.sign(
+      {
+        id: usuario.id,
+        email: usuario.email,
+        nombre: usuario.nombre,
+        rol: usuario.rol.nombre
+      },
+      privateKey,
+      {
+        algorithm: 'RS256',
+        expiresIn: '2h'
+      }
+    );
+
     res.json({
-      id: usuario.id,
-      nombre: usuario.nombre,
-      email: usuario.email,
-      direccion: usuario.direccion,
-      telefono: usuario.telefono,
-      ciudad: usuario.ciudad,
-      codigoPostal: usuario.codigoPostal,
-      estado: usuario.estado.nombre,
+      usuario: {
+        id: usuario.id,
+        email: usuario.email,
+        nombre: usuario.nombre,
+        direccion: usuario.direccion || "",
+        telefono: usuario.telefono,
+        ciudad: usuario.ciudad,
+        codigoPostal: usuario.codigoPostal,
+        estado: usuario.estado,
+        rol: usuario.rol
+      },
+      token: token,
+      expiresIn: '2h'
     });
 
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
 };
+
 // Actualizar 
 export const update = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -184,3 +250,21 @@ export const update = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const deleteUsuario = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const usuario = await usuarioRepository.findOneBy({ id: parseInt(id, 10) });
+
+    if (!usuario) {
+      res.status(404).json({ message: 'Usuario no encontrado' });
+      return;
+    }
+
+    await usuarioRepository.remove(usuario);
+    res.json({ message: 'Usuario eliminado correctamente' });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+}
+

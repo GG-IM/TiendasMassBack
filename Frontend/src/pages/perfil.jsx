@@ -49,8 +49,10 @@ const UserProfile = () => {
           ciudad: data.ciudad,
           direccion: data.direccion,
           codigoPostal: data.codigoPostal,
-          birthDate: '15/03/1990', // temporal, para UI (puedes agregarlo luego en BD)
+          rol: data.rol, // ✅ AÑADIDO AQUÍ
+          birthDate: '15/03/1990', // temporal
         });
+
       } catch (error) {
         console.error('Error al cargar datos del perfil:', error);
       }

@@ -1,33 +1,71 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Edit, Trash2, Eye, Plus, Search } from 'lucide-react';
-import { mockProducts, mockCategories } from '../../data/mockData';
+import axios from 'axios';
+//import { mockProducts, mockCategories } from '../../data/mockData.jsx';
 
 const ProductManager = () => {
-  const [products, setProducts] = useState(mockProducts);
+
+  const API_URL = 'http://localhost:3000/api/products';
+  const CATEGORY_URL = 'http://localhost:3000/api/categorias';
+
+
+  const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [showModal, setShowModal] = useState(false);
+  const [categorias, setCategorias] = useState([]);
+
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [productosRes, categoriasRes, estadosRes] = await Promise.all([
+          axios.get(API_URL),
+          axios.get(CATEGORY_URL),
+        ]);
+
+        setProducts(productosRes.data);
+        console.log('📦 Productos recibidos:', productosRes.data);
+        setCategorias(categoriasRes.data);
+      } catch (error) {
+        console.error('❌ Error al cargar datos:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   const [editingProduct, setEditingProduct] = useState(null);
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    price: '',
-    category: '',
+    nombre: '',
+    descripcion: '',
+    precio: '',
+    categoriaId: '',
     stock: '',
-    image: '',
-    active: true
+    imagen: '',
+    estadoId: '',
   });
+
 
   const productsPerPage = 10;
 
   const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === '' || product.category === selectedCategory;
+    const nombre = product.nombre || '';
+    const descripcion = product.descripcion || '';
+
+    const matchesSearch =
+      nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      descripcion.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesCategory =
+      selectedCategory === '' ||
+      product.categoria?.id?.toString() === selectedCategory;
+
     return matchesSearch && matchesCategory;
   });
+
 
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
   const startIndex = (currentPage - 1) * productsPerPage;
@@ -36,13 +74,14 @@ const ProductManager = () => {
   const handleEdit = (product) => {
     setEditingProduct(product);
     setFormData({
-      name: product.name,
-      description: product.description,
-      price: product.price.toString(),
-      category: product.category,
+      nombre: product.nombre,
+      descripcion: product.descripcion,
+      precio: product.precio.toString(),
       stock: product.stock.toString(),
-      image: product.image,
-      active: product.active
+      marca: product.marca || '',
+      imagen: product.imagen || '',
+      categoriaId: product.categoria?.id || '',
+      estadoId: product.estado?.id || '',
     });
     setShowModal(true);
   };
@@ -61,41 +100,56 @@ const ProductManager = () => {
     setShowModal(true);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    const productData = {
-      ...formData,
-      price: parseFloat(formData.price),
-      stock: parseInt(formData.stock),
-      createdAt: new Date().toISOString().split('T')[0]
-    };
 
-    if (editingProduct) {
-      setProducts(products.map(p => 
-        p.id === editingProduct.id 
-          ? { ...p, ...productData }
-          : p
-      ));
-    } else {
-      const newProduct = {
-        id: Date.now(),
-        ...productData
-      };
-      setProducts([newProduct, ...products]);
+    const form = new FormData();
+    form.append('nombre', formData.nombre);
+    form.append('descripcion', formData.descripcion);
+    form.append('precio', formData.precio);
+    form.append('stock', formData.stock);
+    form.append('marca', formData.marca || '');
+    form.append('categoriaId', formData.categoriaId);
+    form.append('estadoId', formData.estadoId);
+
+    if (formData.imagen) {
+      console.log('📸 Archivo seleccionado:', formData.imagen);
+
+      form.append('imagen', formData.imagen); // este es el archivo
     }
 
-    setShowModal(false);
-  };
-
-  const handleDelete = (id) => {
-    if (window.confirm('¿Está seguro de eliminar este producto?')) {
-      setProducts(products.filter(p => p.id !== id));
+    try {
+      if (editingProduct) {
+        await axios.put(`${API_URL}/${editingProduct.id}`, form, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+      } else {
+        const res = await axios.post(API_URL, form, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        setProducts([res.data, ...products]);
+      }
+      setShowModal(false);
+    } catch (error) {
+      console.error('❌ Error al guardar producto:', error);
     }
   };
+
+
+  const handleDelete = async (id) => {
+    if (window.confirm('¿Estás seguro de eliminar este producto?')) {
+      try {
+        await axios.delete(`${API_URL}/${id}`);
+        setProducts(products.filter(p => p.id !== id));
+      } catch (error) {
+        console.error('❌ Error al eliminar producto:', error);
+      }
+    }
+  };
+
 
   const toggleActive = (id) => {
-    setProducts(products.map(p => 
+    setProducts(products.map(p =>
       p.id === id ? { ...p, active: !p.active } : p
     ));
   };
@@ -125,16 +179,17 @@ const ProductManager = () => {
             </div>
             <select
               className="form-select"
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
+              value={formData.categoriaId}
+              onChange={(e) => setFormData({ ...formData, categoriaId: e.target.value })}
             >
-              <option value="">Todas las categorías</option>
-              {mockCategories.map(category => (
-                <option key={category.id} value={category.name}>
-                  {category.name}
+              <option value="">Seleccionar categoría</option>
+              {categorias.map(category => (
+                <option key={category.id} value={category.id}>
+                  {category.nombre}
                 </option>
               ))}
             </select>
+
             <button className="btn btn-mass-yellow" onClick={handleAdd}>
               <Plus size={16} className="me-1" />
               Agregar Producto
@@ -160,21 +215,25 @@ const ProductManager = () => {
                 <tr key={product.id}>
                   <td>
                     <img
-                      src={product.image}
-                      alt={product.name}
+                      src={product.imagen ? `http://localhost:3000/${product.imagen}` : '/placeholder-image.jpg'}
+                      alt={product.nombre}
                       className="rounded"
                       style={{ width: '50px', height: '50px', objectFit: 'cover' }}
+                      onError={(e) => {
+                        e.target.src = '/placeholder-image.jpg';
+                      }}
                     />
+
                   </td>
                   <td>
                     <div>
-                      <strong>{product.name}</strong>
+                      <strong>{product.nombre}</strong>
                       <br />
-                      <small className="text-muted">{product.description}</small>
+                      <small className="text-muted">{product.descripcion}</small>
                     </div>
                   </td>
-                  <td>{product.category}</td>
-                  <td><strong>${product.price.toFixed(2)}</strong></td>
+                  <td>{product.categoria ? product.categoria.nombre : 'Sin categoría'}</td>
+                  <td><strong>${product.precio.toFixed(2)}</strong></td>
                   <td>
                     <span className={`badge ${product.stock > 20 ? 'badge-success' : product.stock > 5 ? 'badge-warning' : 'badge-danger'}`}>
                       {product.stock}
@@ -273,8 +332,8 @@ const ProductManager = () => {
                         <input
                           type="text"
                           className="form-control"
-                          value={formData.name}
-                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                          value={formData.nombre}
+                          onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
                           required
                         />
                       </div>
@@ -284,14 +343,13 @@ const ProductManager = () => {
                         <label className="form-label">Categoría *</label>
                         <select
                           className="form-select"
-                          value={formData.category}
-                          onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                          required
+                          value={formData.categoriaId}
+                          onChange={(e) => setFormData({ ...formData, categoriaId: e.target.value })}
                         >
                           <option value="">Seleccionar categoría</option>
-                          {mockCategories.map(category => (
-                            <option key={category.id} value={category.name}>
-                              {category.name}
+                          {categorias.map(category => (
+                            <option key={category.id} value={category.id}>
+                              {category.nombre}
                             </option>
                           ))}
                         </select>
@@ -303,8 +361,8 @@ const ProductManager = () => {
                     <textarea
                       className="form-control"
                       rows={3}
-                      value={formData.description}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      value={formData.descripcion}
+                      onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
                     ></textarea>
                   </div>
                   <div className="row">
@@ -315,8 +373,8 @@ const ProductManager = () => {
                           type="number"
                           step="0.01"
                           className="form-control"
-                          value={formData.price}
-                          onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                          value={formData.precio}
+                          onChange={(e) => setFormData({ ...formData, precio: e.target.value })}
                           required
                         />
                       </div>
@@ -337,27 +395,16 @@ const ProductManager = () => {
                       <div className="form-group">
                         <label className="form-label">URL Imagen</label>
                         <input
-                          type="url"
+                          type="file"
+                          accept="image/*"
                           className="form-control"
-                          value={formData.image}
-                          onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                          placeholder="https://..."
+                          onChange={(e) => setFormData({ ...formData, imagen: e.target.files[0] })}
                         />
+
                       </div>
                     </div>
                   </div>
-                  <div className="form-check">
-                    <input
-                      type="checkbox"
-                      className="form-check-input"
-                      id="active"
-                      checked={formData.active}
-                      onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
-                    />
-                    <label className="form-check-label" htmlFor="active">
-                      Producto activo
-                    </label>
-                  </div>
+                  {/* Puedes agregar aquí el checkbox de activo si tu modelo lo requiere */}
                 </div>
                 <div className="modal-footer">
                   <button

@@ -2,6 +2,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
 import { Usuario } from "./Usuario.entity";
 import { Producto } from "./Producto.entity";
+import { Categoria } from "./Categoria.entity";
 
 @Entity("Estados")
 export class Estado {
@@ -19,4 +20,7 @@ export class Estado {
   
    @OneToMany(() => Producto, producto => producto.estado)
   productos: Producto[];
+
+  @OneToMany(() => Categoria, (categoria) => categoria.estado)
+  categorias: Categoria[];
 }

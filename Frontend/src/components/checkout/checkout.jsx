@@ -139,70 +139,94 @@ export default function Checkout({ activeStep, setActiveStep, formData, setFormD
       const metodoSeleccionado = metodosPago.find(m => m.id.toString() === paymentMethod);
 
 
-      // Función auxiliar para determinar el estado del pago
-      function determinePaymentStatus(result, paymentMethod) {
-        // Si el resultado incluye información del pago
-        if (result.pagoExitoso === true) return 'PAGADO';
-        if (result.pagoExitoso === false) return 'FALLIDO';
+      // Función auxiliar mejorada para determinar el estado del pago
+      function determinePaymentStatus(result, paymentMethod, metodosPago = []) {
+        console.log('🔍 Determinando estado de pago:', { result, paymentMethod, metodosPago });
 
-        // Si hay un ID de transacción, probablemente fue exitoso
-        if (result.transaccionId || result.paymentId) return 'PAGADO';
-
-        // Para métodos que requieren procesamiento manual
-        const metodosManual = ['transferencia', 'deposito'];
-        const metodoSeleccionado = metodosPago.find(m => m.id.toString() === paymentMethod);
-
-        if (metodosManual.includes(metodoSeleccionado?.tipo)) {
-          return 'PENDIENTE_VERIFICACION';
+        // 1. Si el backend ya especifica el estado, usarlo
+        if (result.estadoPago) {
+          console.log('✅ Estado del servidor:', result.estadoPago);
+          return result.estadoPago;
         }
 
-        // Para métodos digitales sin confirmación inmediata
-        if (['paypal', 'billetera'].includes(metodoSeleccionado?.tipo)) {
-          return result.estadoProcesamiento || 'PROCESANDO';
+        // 2. Si hay información explícita de pago exitoso
+        if (result.pagoExitoso === true) {
+          console.log('✅ Pago marcado como exitoso');
+          return 'COMPLETADO';
         }
 
-        // Por defecto, pendiente
+        if (result.pagoExitoso === false) {
+          console.log('❌ Pago marcado como fallido');
+          return 'FALLIDO';
+        }
+
+        // 3. Si hay ID de transacción, probablemente fue exitoso
+        if (result.transaccionId || result.paymentId || result.numeroTransaccion) {
+          console.log('✅ Transacción con ID:', result.transaccionId || result.paymentId);
+          return 'COMPLETADO';
+        }
+
+        // 4. Determinar por tipo de método de pago (solo si metodosPago está disponible)
+        if (Array.isArray(metodosPago) && metodosPago.length > 0) {
+          const metodoSeleccionado = metodosPago.find(m => m.id.toString() === paymentMethod);
+
+          if (metodoSeleccionado) {
+            console.log('💳 Método seleccionado:', metodoSeleccionado);
+
+            // Métodos que requieren verificación manual
+            if (['transferencia', 'deposito', 'efectivo'].includes(metodoSeleccionado.tipo)) {
+              console.log('⏳ Método requiere verificación manual');
+              return 'PENDIENTE_VERIFICACION';
+            }
+
+            // Métodos digitales instantáneos
+            if (['tarjeta', 'paypal', 'yape', 'plin'].includes(metodoSeleccionado.tipo)) {
+              console.log('✅ Método digital - asumiendo exitoso');
+              return 'COMPLETADO';
+            }
+
+            // Si el nombre contiene indicadores de método instantáneo
+            const nombreMetodo = metodoSeleccionado.nombre.toLowerCase();
+            if (nombreMetodo.includes('tarjeta') || nombreMetodo.includes('paypal') ||
+              nombreMetodo.includes('yape') || nombreMetodo.includes('plin')) {
+              console.log('✅ Método instantáneo por nombre - asumiendo exitoso');
+              return 'COMPLETADO';
+            }
+          }
+        }
+
+        // 5. Si el pedido se creó exitosamente, asumir pago completado
+        if (result.pedidoId || result.id) {
+          console.log('✅ Pedido creado exitosamente - asumiendo pago completado');
+          return 'COMPLETADO';
+        }
+
+        // 6. Por defecto, pendiente solo si no hay información
+        console.log('⚠️ Sin información suficiente - estado pendiente');
         return 'PENDIENTE';
       }
+      // Determinar estado de pago y detalles del pedido de forma robusta
+      const estadoPagoCalculado = result.estadoPago
+        ? result.estadoPago
+        : determinePaymentStatus(result, paymentMethod);
 
-      setPedidoCreado({
-        id: result.pedidoId,
-        montoTotal: total,
-        direccionEnvio: pedidoData.direccionEnvio,
-        estado: result.estado || 'PENDIENTE',
-        estadoPago: result.estadoPago || determinePaymentStatus(result, paymentMethod),
-        metodoPago: {
-          id: pedidoData.metodoPagoId,
-          nombre: metodoSeleccionado?.nombre || 'Método no especificado'
-        },
-        detallesPedidos: carrito.map((item, index) => ({
-          // Generar ID único para el detalle o usar uno del servidor si existe
-          id: result.detalles?.[index]?.id || `detalle_${result.pedidoId}_${index}`,
-          cantidad: item.cantidad,
-          precio: parsePrice(item.precio),
-          subtotal: parsePrice(item.precio) * item.cantidad, // Agregar subtotal
+      // Preferir detalles del servidor, si existen y son válidos
+      let detallesPedidos = [];
+      if (Array.isArray(result.detallesPedidos) && result.detallesPedidos.length > 0) {
+        detallesPedidos = result.detallesPedidos.map((detalle, index) => ({
+          id: detalle.id || `detalle_${result.pedidoId}_${index}`,
+          cantidad: detalle.cantidad,
+          precio: detalle.precio,
+          subtotal: detalle.subtotal || (detalle.precio * detalle.cantidad),
           producto: {
-            id: item.id,
-            nombre: item.nombre || item.title || 'Producto sin nombre'
+            id: detalle.producto?.id || detalle.productoId || carrito[index]?.id,
+            nombre: detalle.producto?.nombre || carrito[index]?.nombre || carrito[index]?.title || 'Producto sin nombre'
           }
-        })),
-        
-      });
-
-      // Versión alternativa si el servidor devuelve los detalles completos
-      setPedidoCreado({
-        id: result.pedidoId,
-        montoTotal: total,
-        direccionEnvio: pedidoData.direccionEnvio,
-        estado: result.estado || 'PENDIENTE',
-        estadoPago: result.estadoPago || 'PENDIENTE',
-        metodoPago: {
-          id: pedidoData.metodoPagoId,
-          nombre: metodoSeleccionado?.nombre || 'Método no especificado'
-        },
-        // Si el servidor devuelve los detalles, úsalos directamente
-        detallesPedidos: result.detallesPedidos || carrito.map((item, index) => ({
-          id: `temp_${index}`, // ID temporal hasta que el servidor confirme
+        }));
+      } else {
+        // Fallback: usar carrito local
+        detallesPedidos = carrito.map((item, index) => ({
+          id: `detalle_${result.pedidoId}_${index}`,
           cantidad: item.cantidad,
           precio: parsePrice(item.precio),
           subtotal: parsePrice(item.precio) * item.cantidad,
@@ -210,8 +234,20 @@ export default function Checkout({ activeStep, setActiveStep, formData, setFormD
             id: item.id,
             nombre: item.nombre || item.title || 'Producto sin nombre'
           }
-        })),
-       
+        }));
+      }
+
+      setPedidoCreado({
+        id: result.pedidoId || result.id,
+        montoTotal: result.montoTotal || total,
+        direccionEnvio: result.direccionEnvio || pedidoData.direccionEnvio,
+        estado: result.estado || 'PENDIENTE',
+        estadoPago: estadoPagoCalculado,
+        metodoPago: {
+          id: pedidoData.metodoPagoId,
+          nombre: metodoSeleccionado?.nombre || result.metodoPago?.nombre || 'Método no especificado'
+        },
+        detallesPedidos
       });
 
       if (vaciarCarrito) {
@@ -716,17 +752,13 @@ export default function Checkout({ activeStep, setActiveStep, formData, setFormD
                     <strong>#{pedidoCreado.id}</strong>
                   </div>
                   <div className="detail-row">
-                    <span>Total Pagado:</span>
-                    <strong>S/.{pedidoCreado.resumen?.total?.toFixed(2) || parseFloat(pedidoCreado.montoTotal).toFixed(2)}</strong>
-                  </div>
-                  <div className="detail-row">
                     <span>Método de Pago:</span>
                     <strong>{pedidoCreado.metodoPago?.nombre || 'N/A'}</strong>
                   </div>
                   <div className="detail-row">
                     <span>Estado del Pago:</span>
                     <strong style={{ color: pedidoCreado.estadoPago === 'completado' ? 'green' : 'orange' }}>
-                      {pedidoCreado.estadoPago}
+                      {pedidoCreado.estadoPago === 'completado' ? 'Completado' : pedidoCreado.estadoPago}
                     </strong>
                   </div>
                   <div className="detail-row">
@@ -742,21 +774,26 @@ export default function Checkout({ activeStep, setActiveStep, formData, setFormD
 
                 <div className="order-products">
                   <h3>Productos Pedidos</h3>
-                  {pedidoCreado.resumen?.items?.map((item, index) => (
+                  {(pedidoCreado.resumen?.items && pedidoCreado.resumen.items.length > 0
+                    ? pedidoCreado.resumen.items
+                    : pedidoCreado.detallesPedidos || []
+                  ).map((item, index) => (
                     <div key={index} className="order-product-item">
-                      <span>{item.nombre}</span>
+                      <span>{item.nombre || item.producto?.nombre}</span>
                       <span>x{item.cantidad}</span>
-                      <span>S/.{(item.precio * item.cantidad).toFixed(2)}</span>
+                      <span>
+                        S/.{((item.precio ?? item.subtotal / item.cantidad) * item.cantidad).toFixed(2)}
+                      </span>
                     </div>
                   ))}
-
-                  <div className="detail-row">
-                    <span>Envío:</span>
-                    <strong>S/.{pedidoCreado.resumen?.shippingCost?.toFixed(2)}</strong>
-                  </div>
-                  <div className="detail-row">
-                    <span>Impuestos:</span>
-                    <strong>S/.{pedidoCreado.resumen?.taxes?.toFixed(2)}</strong>
+                  <div className="order-total">
+                    <span>Total:</span>
+                    <strong>
+                      S/.{(pedidoCreado.resumen?.total !== undefined
+                        ? pedidoCreado.resumen.total
+                        : pedidoCreado.montoTotal
+                      )?.toFixed(2)}
+                    </strong>
                   </div>
                 </div>
 
@@ -809,8 +846,8 @@ export default function Checkout({ activeStep, setActiveStep, formData, setFormD
 
             {/* Mostrar productos */}
             <div className="order-items">
-              {activeStep === 3 && pedidoCreado?.resumen
-                ? pedidoCreado.resumen.items.map((item, index) => (
+              {activeStep === 3 && pedidoCreado?.resumen?.items?.length > 0 ? (
+                pedidoCreado.resumen.items.map((item, index) => (
                   <div key={index} className="order-item">
                     <div className="item-info">
                       <span className="item-name">{item.nombre}</span>
@@ -819,53 +856,48 @@ export default function Checkout({ activeStep, setActiveStep, formData, setFormD
                     <span className="item-price">S/.{(item.precio * item.cantidad).toFixed(2)}</span>
                   </div>
                 ))
-                : carrito.map(item => (
-                  <div key={item.id} className="order-item">
-                    <div className="item-info">
-                      <span className="item-name">{item.title || item.nombre}</span>
-                      <span className="item-quantity">x{item.cantidad}</span>
+              ) : (
+                carrito.length > 0 ? (
+                  carrito.map((item) => (
+                    <div key={item.id} className="order-item">
+                      <div className="item-info">
+                        <span className="item-name">{item.title || item.nombre}</span>
+                        <span className="item-quantity">x{item.cantidad}</span>
+                      </div>
+                      <span className="item-price">S/.{(parsePrice(item.precio) * item.cantidad).toFixed(2)}</span>
                     </div>
-                    <span className="item-price">S/.{(parsePrice(item.precio) * item.cantidad).toFixed(2)}</span>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <div>No hay productos en el carrito.</div>
+                )
+              )}
             </div>
 
             <hr />
 
+            {/* Mostrar resumen de costos */}
             <div className="summary-row">
               <span>Subtotal ({activeStep === 3 ? pedidoCreado?.resumen?.items?.length : carrito.length} productos)</span>
               <span>
-                S/.{(activeStep === 3
-                  ? pedidoCreado?.resumen?.subtotal
-                  : subtotal
-                )?.toFixed(2)}
+                S/.{(activeStep === 3 ? pedidoCreado?.resumen?.subtotal : subtotal)?.toFixed(2)}
               </span>
             </div>
             <div className="summary-row">
               <span>Envío</span>
               <span>
-                S/.{(activeStep === 3
-                  ? pedidoCreado?.resumen?.shippingCost
-                  : shippingCost
-                )?.toFixed(2)}
+                S/.{(activeStep === 3 ? pedidoCreado?.resumen?.shippingCost : shippingCost)?.toFixed(2)}
               </span>
             </div>
             <div className="summary-row">
               <span>Impuestos</span>
               <span>
-                S/.{(activeStep === 3
-                  ? pedidoCreado?.resumen?.taxes
-                  : taxes
-                )?.toFixed(2)}
+                S/.{(activeStep === 3 ? pedidoCreado?.resumen?.taxes : taxes)?.toFixed(2)}
               </span>
             </div>
             <div className="summary-total">
               <strong>Total</strong>
               <strong>
-                S/.{(activeStep === 3
-                  ? pedidoCreado?.resumen?.total
-                  : total
-                )?.toFixed(2)}
+                S/.{(activeStep === 3 ? pedidoCreado?.resumen?.total : total)?.toFixed(2)}
               </strong>
             </div>
 
@@ -889,6 +921,7 @@ export default function Checkout({ activeStep, setActiveStep, formData, setFormD
             )}
           </div>
         </aside>
+
 
       </div>
     </div>

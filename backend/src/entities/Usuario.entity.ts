@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn } from "typeorm";
 import { Estado } from "./Estado.entity";
-import { Empleado } from "./Empleados.entity";
+import { Rol } from './Rol.entity';
 import { Pedido } from "./Pedidos.entity";
 import { MetodoPago } from "./MetodoPago.entity";
 import { Reporte } from "./Reportes.entity";
@@ -42,8 +42,8 @@ export class Usuario {
   @UpdateDateColumn({ name: "actualizado_en" })
   actualizadoEn: Date;
 
-  @OneToMany(() => Empleado, empleado => empleado.usuario)
-  empleados: Empleado[];
+  @ManyToOne(() => Rol, { eager: true })
+  rol: Rol;
 
   @OneToMany(() => Pedido, pedido => pedido.usuario)
   pedidos: Pedido[];

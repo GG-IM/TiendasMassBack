@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Edit, Trash2, Plus, Search } from 'lucide-react';
-import { mockPaymentMethods } from '../../data/mockData';
+import { mockPaymentMethods } from '../../data/mockData.jsx';
 
 const PaymentMethodManager = () => {
   const [paymentMethods, setPaymentMethods] = useState(mockPaymentMethods);

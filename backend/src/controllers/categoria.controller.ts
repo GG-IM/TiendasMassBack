@@ -37,14 +37,15 @@ export const getCategoryById = async (req: Request, res: Response): Promise<void
 
 export const createCategory = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { nombre, descripcion } = req.body;
+    const { nombre, descripcion, estado } = req.body;
     const categoryRepository = AppDataSource.getRepository(Categoria);
-    
+
     const newCategory = categoryRepository.create({
       nombre,
-      descripcion
+      descripcion,
+      estado
     });
-    
+
     const savedCategory = await categoryRepository.save(newCategory);
     res.status(201).json(savedCategory);
   } catch (error) {
@@ -56,7 +57,7 @@ export const createCategory = async (req: Request, res: Response): Promise<void>
 export const updateCategory = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { nombre, descripcion } = req.body;
+    const { nombre, descripcion, estado } = req.body;
     const categoryRepository = AppDataSource.getRepository(Categoria);
     
     const category = await categoryRepository.findOne({ where: { id: parseInt(id) } });
@@ -66,8 +67,9 @@ export const updateCategory = async (req: Request, res: Response): Promise<void>
       return;
     }
     
-    category.nombre = nombre || category.nombre;
-    category.descripcion = descripcion || category.descripcion;
+    category.nombre = nombre ?? category.nombre;
+    category.descripcion = descripcion ?? category.descripcion;
+    category.estado = estado ?? category.estado;
     
     const updatedCategory = await categoryRepository.save(category);
     res.json(updatedCategory);

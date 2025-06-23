@@ -5,6 +5,8 @@ import {
   OneToMany,
 } from 'typeorm';
 import { Producto } from './Producto.entity';
+import { Estado } from './Estado.entity';
+import { ManyToOne } from 'typeorm';
 
 @Entity('Categorias')
 export class Categoria {
@@ -19,4 +21,7 @@ export class Categoria {
 
   @OneToMany(() => Producto, producto => producto.categoria)
   productos: Producto[];
+  
+  @ManyToOne(() => Estado, estado => estado.categorias)
+  estado: Estado;
 }

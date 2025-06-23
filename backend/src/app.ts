@@ -7,9 +7,8 @@ import categoriRoutes from './routes/categoria.routes';
 import { AppDataSource } from './config/data-source';
 import pedidoRoutes from './routes/pedidos.routes';
 import  MetodoPagoRoutes  from './routes/metodopago.routes';  
-import metodoEnvioRoutes from './routes/metodoenvio.routes'; // Asegúrate de que esta ruta esté definida correctamente
-
-
+import metodoEnvioRoutes from './routes/metodoenvio.routes'; 
+import rolesRoutes from './routes/rol.routes';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -28,6 +27,7 @@ app.use('/api/categorias', categoriRoutes);
 app.use("/api/pedidos", pedidoRoutes); 
 app.use('/api/metodos-pago', MetodoPagoRoutes);
 app.use('/api/metodos-envio', metodoEnvioRoutes); 
+app.use('/api/roles', rolesRoutes);
 
 // Conexión a la base de datos
 AppDataSource.initialize()
