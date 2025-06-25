@@ -5,6 +5,10 @@ import { Usuario } from '../entities/Usuario.entity';
 import { Estado } from '../entities/Estado.entity';
 import { Rol } from '../entities/Rol.entity';
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+
+// Cargar las variables de entorno
+dotenv.config();
 
 const usuarioRepository = AppDataSource.getRepository(Usuario);
 const estadoRepository = AppDataSource.getRepository(Estado);
@@ -147,7 +151,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const jwtSecret = mi_clave_super_secreta_123;
+    const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
       throw new Error('JWT_SECRET no definido en las variables de entorno');
     }
