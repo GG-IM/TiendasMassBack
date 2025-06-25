@@ -147,7 +147,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const jwtSecret = process.env.JWT_SECRET;
+    const jwtSecret = mi_clave_super_secreta_123;
     if (!jwtSecret) {
       throw new Error('JWT_SECRET no definido en las variables de entorno');
     }
