@@ -4,12 +4,7 @@ import { AppDataSource } from '../config/data-source';
 import { Usuario } from '../entities/Usuario.entity';
 import { Estado } from '../entities/Estado.entity';
 import { Rol } from '../entities/Rol.entity';
-//JWT
-import fs from 'fs';
-import path from 'path';
 import jwt from 'jsonwebtoken';
-
-const privateKey = fs.readFileSync(path.join(__dirname, '..', 'keys', 'private.key'), 'utf8');
 
 const usuarioRepository = AppDataSource.getRepository(Usuario);
 const estadoRepository = AppDataSource.getRepository(Estado);
@@ -17,14 +12,13 @@ const estadoRepository = AppDataSource.getRepository(Estado);
 // Obtener todos los usuarios
 export const getAllUsuarios = async (req: Request, res: Response): Promise<void> => {
   try {
-    const usuarios = await usuarioRepository.find({
-      relations: ['estado'], // Incluye el estado en la respuesta
-    });
+    const usuarios = await usuarioRepository.find({ relations: ['estado'] });
     res.json(usuarios);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
 };
+
 // Obtener usuario por ID
 export const getUsuarioById = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -55,7 +49,6 @@ export const getUsuarioById = async (req: Request, res: Response): Promise<void>
 };
 
 // Registrar nuevo usuario
-// Registrar nuevo usuario
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const {
@@ -70,37 +63,31 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       rolId = 2  
     } = req.body;
 
-    // Validaciones de entrada
     if (!nombre || !email || !password) {
       res.status(400).json({ message: 'Nombre, email y contraseña son requeridos' });
       return;
     }
 
-    // Verifica si el usuario ya existe
     const usuarioExistente = await usuarioRepository.findOneBy({ email });
     if (usuarioExistente) {
       res.status(400).json({ message: 'El usuario ya existe' });
       return;
     }
 
-    // Busca el rol por ID (más eficiente)
     const rol = await AppDataSource.getRepository(Rol).findOneBy({ id: rolId });
     if (!rol) {
       res.status(400).json({ message: `Rol con ID ${rolId} no encontrado` });
       return;
     }
 
-    // Busca el estado por ID
     const estado = await estadoRepository.findOneBy({ id: estadoId });
     if (!estado) {
       res.status(400).json({ message: `Estado con ID ${estadoId} no encontrado` });
       return;
     }
 
-    // Hashea la contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Crea el nuevo usuario
     const nuevoUsuario = usuarioRepository.create({
       nombre,
       email,
@@ -113,10 +100,8 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       rol
     });
 
-    // Guarda en la base de datos
     const usuarioGuardado = await usuarioRepository.save(nuevoUsuario);
 
-    // Respuesta completa con objetos relacionados
     res.status(201).json({
       id: usuarioGuardado.id,
       nombre: usuarioGuardado.nombre,
@@ -141,7 +126,6 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-
 // Iniciar sesión
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -163,7 +147,11 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Crear token JWT
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      throw new Error('JWT_SECRET no definido en las variables de entorno');
+    }
+
     const token = jwt.sign(
       {
         id: usuario.id,
@@ -171,9 +159,9 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         nombre: usuario.nombre,
         rol: usuario.rol.nombre
       },
-      privateKey,
+      jwtSecret,
       {
-        algorithm: 'RS256',
+        algorithm: 'HS256',
         expiresIn: '2h'
       }
     );
@@ -195,6 +183,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     });
 
   } catch (error: any) {
+    console.error('Error en login:', error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -251,6 +240,7 @@ export const update = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+// Eliminar usuario
 export const deleteUsuario = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
@@ -266,5 +256,4 @@ export const deleteUsuario = async (req: Request, res: Response): Promise<void> 
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
-}
-
+};

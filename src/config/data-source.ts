@@ -14,7 +14,7 @@ export const AppDataSource = new DataSource({
   synchronize: false, // TRUE solo si quieres auto-crear las tablas, pero mejor manejar migraciones
   logging: true,
   ssl: {
-    rejectUnauthorized: true,
+    rejectUnauthorized: false,
   },
   entities: ["src/entities/**/*.ts"],
 });
