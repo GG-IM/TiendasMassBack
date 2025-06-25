@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
 import * as dotenv from "dotenv";
+import * as fs from "fs";  // Asegúrate de tener esta importación para leer el archivo de certificado
 
 dotenv.config();
 
@@ -8,15 +9,16 @@ const isCompiled = __dirname.includes("dist");
 
 export const AppDataSource = new DataSource({
   type: "mysql",
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT) || 3306,
-  username: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
+  host: "tiendasmass.mysql.database.azure.com",  // Asegúrate de colocar tu host correctamente
+  port: 3306,
+  username: "tilioes",
+  password: "Michita0123+",  // Usa el password real aquí
+  database: "tiendasmass",
   synchronize: false,
   logging: true,
   ssl: {
-    rejectUnauthorized: false,
+    ca: fs.readFileSync("path_to_your_cert/BaltimoreCyberTrustRoot.crt.pem"),  // Ruta al archivo CA certificado
+    rejectUnauthorized: false,  // Si no necesitas validar estrictamente el certificado
   },
   entities: [isCompiled ? "dist/entities/**/*.js" : "src/entities/**/*.ts"],
 });
