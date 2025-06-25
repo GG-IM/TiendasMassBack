@@ -4,6 +4,8 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 
+const isCompiled = __dirname.includes("dist");
+
 export const AppDataSource = new DataSource({
   type: "mysql",
   host: process.env.DB_HOST,
@@ -11,10 +13,10 @@ export const AppDataSource = new DataSource({
   username: process.env.DB_USER,
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
-  synchronize: false, // TRUE solo si quieres auto-crear las tablas, pero mejor manejar migraciones
+  synchronize: false,
   logging: true,
   ssl: {
     rejectUnauthorized: false,
   },
-  entities: ["src/entities/**/*.ts"],
+  entities: [isCompiled ? "dist/entities/**/*.js" : "src/entities/**/*.ts"],
 });
