@@ -14,7 +14,7 @@ export const AppDataSource = new DataSource({
   username: "tilioes",
   password: "Michita0123+",  // Usa el password real aquí
   database: "tiendasmass",
-  synchronize: false,
+  synchronize: true,
   logging: true,
   ssl: {
     ca: fs.readFileSync("path_to_your_cert/BaltimoreCyberTrustRoot.crt.pem"),  // Ruta al archivo CA certificado
