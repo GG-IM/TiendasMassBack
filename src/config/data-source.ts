@@ -17,7 +17,7 @@ export const AppDataSource = new DataSource({
   synchronize: true,
   logging: true,
   ssl: {
-    ca: fs.readFileSync("path_to_your_cert/BaltimoreCyberTrustRoot.crt.pem"),  // Ruta al archivo CA certificado
+    ca: fs.readFileSync("C:\\Users\\user\\Desktop\\TiendasMassBack\\src\\keys\\combined-certificates.crt.pem"),  // Ruta al archivo CA certificado
     rejectUnauthorized: false,  // Si no necesitas validar estrictamente el certificado
   },
   entities: [isCompiled ? "dist/entities/**/*.js" : "src/entities/**/*.ts"],
