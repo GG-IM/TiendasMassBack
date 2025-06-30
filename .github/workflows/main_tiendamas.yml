@@ -83,3 +83,16 @@ jobs:
           app-name: 'TIENDAMAS'
           slot-name: 'Production'
           package: .
+          
+      - name: Verificar estado de la app (health check)
+        run: |
+          echo "⏳ Esperando 20 segundos para que la app arranque..."
+          sleep 20
+          echo "🔍 Verificando /api/health..."
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://tiendamas-g7cbc7hgchbccygs.azurewebsites.net/api/health)
+          if [ "$STATUS" -ne 200 ]; then
+            echo "❌ Health check falló. Código HTTP: $STATUS"
+            exit 1
+          else
+            echo "✅ Health check exitoso. La app está viva."
+          fi
