@@ -3,7 +3,7 @@ import { DataSource } from "typeorm";
 import * as dotenv from "dotenv";
 import * as fs from "fs";  // Asegúrate de tener esta importación para leer el archivo de certificado
 import * as path from "path";
-
+ 
 dotenv.config();
 
 const isCompiled = __dirname.includes("dist");
