@@ -28,7 +28,14 @@ app.use("/api/pedidos", pedidoRoutes);
 app.use('/api/metodos-pago', MetodoPagoRoutes);
 app.use('/api/metodos-envio', metodoEnvioRoutes); 
 app.use('/api/roles', rolesRoutes);
-
+app.get('/api/health', async (req, res) => {
+  try {
+    await AppDataSource.query('SELECT 1');
+    res.status(200).json({ status: 'ok', db: 'connected' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', db: 'disconnected', error: err.message });
+  }
+});
 // Conexión a la base de datos
 AppDataSource.initialize()
   .then(() => {
