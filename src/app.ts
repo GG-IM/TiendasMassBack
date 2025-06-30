@@ -32,8 +32,12 @@ app.get('/api/health', async (req, res) => {
   try {
     await AppDataSource.query('SELECT 1');
     res.status(200).json({ status: 'ok', db: 'connected' });
-  } catch (err) {
-    res.status(500).json({ status: 'error', db: 'disconnected', error: err.message });
+  } catch (err) => {
+    if (err instanceof Error) {
+      res.status(500).json({ status: 'error', db: 'disconnected', error: err.message });
+    } else {
+      res.status(500).json({ status: 'error', db: 'disconnected', error: String(err) });
+    }
   }
 });
 // Conexión a la base de datos
