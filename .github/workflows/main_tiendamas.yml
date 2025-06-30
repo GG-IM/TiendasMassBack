@@ -84,15 +84,20 @@ jobs:
           slot-name: 'Production'
           package: .
           
-      - name: Verificar estado de la app (health check)
+      - name: Verificar estado de la app (health check con reintentos)
         run: |
-          echo "⏳ Esperando 20 segundos para que la app arranque..."
-          sleep 20
-          echo "🔍 Verificando /api/health..."
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://tiendamas-g7cbc7hgchbccygs.azurewebsites.net/api/health)
-          if [ "$STATUS" -ne 200 ]; then
-            echo "❌ Health check falló. Código HTTP: $STATUS"
-            exit 1
-          else
-            echo "✅ Health check exitoso. La app está viva."
-          fi
+          echo "⏳ Esperando hasta 2 minutos por el /api/health..."
+      
+          for i in {1..12}; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://tiendamas-g7cbc7hgchbccygs.azurewebsites.net/api/health)
+            if [ "$STATUS" -eq 200 ]; then
+              echo "✅ La app respondió correctamente: $STATUS"
+              exit 0
+            else
+              echo "⏳ Intento $i: La app aún no responde (HTTP $STATUS). Esperando 10s..."
+              sleep 10
+            fi
+          done
+      
+          echo "❌ La app no respondió exitosamente en el tiempo esperado."
+          exit 1
