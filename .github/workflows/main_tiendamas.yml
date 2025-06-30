@@ -77,15 +77,6 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_AFC2A62D6F68457AA53DCAF6B66C528F }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_239FA8C2851842228653F263DA267F80 }}
 
-      - name: Validar que PORT esté definido en Azure
-        run: |
-          if [ -z "$PORT" ]; then
-            echo "❌ La variable de entorno PORT no está definida en Azure."
-            exit 1
-          else
-            echo "✅ PORT está definida como $PORT"
-          fi
-
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
