@@ -41,6 +41,12 @@ app.use('/api/estados', estadoRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/direcciones', direccionRoutes);
 app.use('/api/tarjetas-usuario', tarjetaUsuarioRoutes);
+app.get('/', (_req, res) => {
+  res.send('🚀 Bienvenido a TienditaMass API. El backend está corriendo con éxito.');
+});
+
+
+
 
 // Conexión a la base de datos
 AppDataSource.initialize()
