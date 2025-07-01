@@ -148,18 +148,23 @@ export class ProductController {
         return;
       }
 
-      // Buscar estado activo (asumiendo que existe un estado "activo")
+      // Buscar estado activo o inactivo según el valor recibido
+      const estadoNombre = estado ? 'Activo' : 'Inactivo';
       let estadoEntity = await this.estadoRepository.findOne({
-        where: { nombre: estado ? 'activo' : 'inactivo' }
+        where: { nombre: estadoNombre }
       });
 
-      // Si no existe el estado, crear uno por defecto o usar el primero disponible
+      // Si no existe el estado específico, buscar cualquier estado disponible
       if (!estadoEntity) {
+        console.log(`⚠️ Estado "${estadoNombre}" no encontrado, buscando estados disponibles...`);
         estadoEntity = await this.estadoRepository.findOne({});
         if (!estadoEntity) {
           res.status(500).json({ message: 'No se encontraron estados disponibles' });
           return;
         }
+        console.log(`✅ Usando estado disponible: ${estadoEntity.nombre}`);
+      } else {
+        console.log(`✅ Estado encontrado: ${estadoEntity.nombre}`);
       }
 
       // Si hay imagen cargada, construir ruta; si no, dejar vacío
@@ -201,7 +206,7 @@ export class ProductController {
     }
   };
 
-  public updateProduct = async (req: Request, res: Response): Promise<void> => {
+  public updateProduct = async (req: MulterRequest, res: Response): Promise<void> => {
     try {
       const id = parseInt(req.params.id);
       
@@ -215,7 +220,6 @@ export class ProductController {
         marca,
         precio, 
         descripcion, 
-        imagen = '', 
         stock = 0, 
         estado = true, 
         categoria_id 
@@ -251,17 +255,25 @@ export class ProductController {
       if (marca !== undefined) existingProduct.marca = marca;
       if (precio !== undefined) existingProduct.precio = parseFloat(precio.toString());
       if (descripcion !== undefined) existingProduct.descripcion = descripcion;
-      if (imagen !== undefined) existingProduct.imagen = imagen;
       if (stock !== undefined) existingProduct.stock = parseInt(stock.toString());
       if (categoria_id !== undefined) existingProduct.categoria = category;
 
+      // Manejar imagen si se proporciona una nueva
+      if (req.file) {
+        existingProduct.imagen = `uploads/productos/${req.file.filename}`;
+      }
+
       // Actualizar estado si es necesario
       if (estado !== undefined) {
+        const estadoNombre = estado ? 'Activo' : 'Inactivo';
         const estadoEntity = await this.estadoRepository.findOne({
-          where: { nombre: estado ? 'activo' : 'inactivo' }
+          where: { nombre: estadoNombre }
         });
         if (estadoEntity) {
           existingProduct.estado = estadoEntity;
+          console.log(`✅ Estado actualizado a: ${estadoEntity.nombre}`);
+        } else {
+          console.log(`⚠️ Estado "${estadoNombre}" no encontrado, manteniendo estado actual`);
         }
       }
 

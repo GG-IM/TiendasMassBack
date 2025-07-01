@@ -5,6 +5,7 @@ import { Pedido } from "./Pedidos.entity";
 import { MetodoPago } from "./MetodoPago.entity";
 import { Reporte } from "./Reportes.entity";
 import { TarjetaUsuario } from './TarjetaUsuario.entity';
+import { Direccion } from './Direccion.entity';
 
 @Entity("Usuarios")
 export class Usuario {
@@ -54,4 +55,6 @@ export class Usuario {
   @OneToMany(() => TarjetaUsuario, tarjeta => tarjeta.usuario)
   tarjetas: TarjetaUsuario[];
 
+  @OneToMany(() => Direccion, direccion => direccion.usuario)
+  direcciones: Direccion[];
 }

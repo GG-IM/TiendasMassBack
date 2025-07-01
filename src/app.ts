@@ -9,6 +9,13 @@ import pedidoRoutes from './routes/pedidos.routes';
 import  MetodoPagoRoutes  from './routes/metodopago.routes';  
 import metodoEnvioRoutes from './routes/metodoenvio.routes'; 
 import rolesRoutes from './routes/rol.routes';
+import estadoRoutes from './routes/estado.routes';
+import dashboardRoutes from './routes/dashboard.routes';
+import direccionRoutes from './routes/direccion.routes';
+import tarjetaUsuarioRoutes from './routes/tarjeta-usuario.routes';
+import authRoutes from './routes/auth.routes';
+import setupRoutes from './routes/setup.routes';
+
 const app = express();
 const PORT = process.env.PORT || 443;
 
@@ -21,6 +28,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 // Rutas
+app.use('/api/setup', setupRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/usuarios', usuariosRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/categorias', categoriRoutes);
@@ -28,18 +37,11 @@ app.use("/api/pedidos", pedidoRoutes);
 app.use('/api/metodos-pago', MetodoPagoRoutes);
 app.use('/api/metodos-envio', metodoEnvioRoutes); 
 app.use('/api/roles', rolesRoutes);
-app.get('/api/health', async (req, res) => {
-  try {
-    await AppDataSource.query('SELECT 1');
-    res.status(200).json({ status: 'ok', db: 'connected' });
-  } catch (err) {
-    if (err instanceof Error) {
-      res.status(500).json({ status: 'error', db: 'disconnected', error: err.message });
-    } else {
-      res.status(500).json({ status: 'error', db: 'disconnected', error: String(err) });
-    }
-  }
-});
+app.use('/api/estados', estadoRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/direcciones', direccionRoutes);
+app.use('/api/tarjetas-usuario', tarjetaUsuarioRoutes);
+
 // Conexión a la base de datos
 AppDataSource.initialize()
   .then(() => {

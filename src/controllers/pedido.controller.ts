@@ -189,3 +189,46 @@ export const obtenerPedidosPorUsuario = async (req: Request, res: Response): Pro
     return res.status(500).json({ error: "Error al obtener los pedidos del usuario" });
   }
 };
+
+export const obtenerEstadisticasPedidos = async (req: Request, res: Response): Promise<Response> => {
+  try {
+    const pedidoRepo = AppDataSource.getRepository(Pedido);
+    
+    // Obtener todos los pedidos con relaciones
+    const pedidos = await pedidoRepo.find({
+      relations: ["usuario", "detallesPedidos", "detallesPedidos.producto", "metodoPago"],
+    });
+
+    // Calcular estadísticas
+    const totalPedidos = pedidos.length;
+    const ventasTotales = pedidos.reduce((sum, pedido) => sum + parseFloat(pedido.montoTotal.toString()), 0);
+    
+    const estadisticasPorEstado = {
+      pendiente: 0,
+      confirmado: 0,
+      enviado: 0,
+      entregado: 0,
+      cancelado: 0
+    };
+
+    pedidos.forEach(pedido => {
+      estadisticasPorEstado[pedido.estado]++;
+    });
+
+    // Calcular total de artículos vendidos
+    const totalArticulos = pedidos.reduce((sum, pedido) => {
+      return sum + pedido.detallesPedidos.reduce((detalleSum, detalle) => detalleSum + detalle.cantidad, 0);
+    }, 0);
+
+    return res.json({
+      totalPedidos,
+      ventasTotales: parseFloat(ventasTotales.toFixed(2)),
+      estadisticasPorEstado,
+      totalArticulos,
+      pedidos
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Error al obtener estadísticas de pedidos" });
+  }
+};

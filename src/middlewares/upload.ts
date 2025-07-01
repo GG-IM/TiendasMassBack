@@ -4,14 +4,14 @@ import { Request } from 'express';
 import fs from 'fs';
 
 // Asegurar que el directorio existe
-const uploadDir = 'public/uploads/productos';
+const uploadDir = 'src/public/uploads/productos';
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
 const storage = multer.diskStorage({
   destination: (req: Request, file: Express.Multer.File, cb: Function) => {
-    cb(null, 'public/uploads/productos');
+    cb(null, 'src/public/uploads/productos');
   },
   filename: (req: Request, file: Express.Multer.File, cb: Function) => {
     const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1E9);
