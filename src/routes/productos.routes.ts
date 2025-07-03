@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getAllProducts, getProductById, createProduct, updateProduct, deleteProduct } from '../controllers/productos.controller';
+import { getAllProducts, getProductById, createProduct, updateProduct, deleteProduct,getProductsByIds } from '../controllers/productos.controller';
 import upload from '../middlewares/upload'; // Asegúrate que este es tu config de multer
 
 const router = Router();
@@ -12,5 +12,6 @@ router.post('/', upload.single('imagen'), createProduct);
 
 router.put('/:id', upload.single('imagen'), updateProduct); // opcional: si permites editar imagen
 router.delete('/:id', deleteProduct);
+router.post('/bulk', getProductsByIds);
 
 export default router;
