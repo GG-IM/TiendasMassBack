@@ -326,8 +326,21 @@ export class ProductController {
     }
   };
 
-
-  
+  // Obtener varios productos por IDs
+  public getProductsByIds = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { ids } = req.body;
+      if (!Array.isArray(ids) || ids.length === 0) {
+        res.status(400).json({ message: 'Debes enviar un array de IDs' });
+        return;
+      }
+      const products = await this.productRepository.findByIds(ids);
+      const normalizedProducts = products.map(this.normalizeProduct);
+      res.json(normalizedProducts);
+    } catch (error) {
+      res.status(500).json({ message: error instanceof Error ? error.message : 'Error interno del servidor' });
+    }
+  };
 }
 
 
@@ -340,5 +353,6 @@ export const {
   getProductById,
   createProduct,
   updateProduct,
-  deleteProduct
+  deleteProduct,
+  getProductsByIds
 } = productController;
