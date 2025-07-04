@@ -15,7 +15,7 @@ export const AppDataSource = new DataSource({
   username: "tilioes",
   password: "Michita0123+",  // Usa el password real aquí
   database: "tiendasmass",
-  synchronize: true,
+  synchronize: false,
   logging: true,
   ssl: {
     rejectUnauthorized: false,  // Si no necesitas validar estrictamente el certificado
