@@ -6,7 +6,7 @@ import productRoutes from './routes/productos.routes';
 import categoriRoutes from './routes/categoria.routes';
 import { AppDataSource } from './config/data-source';
 import pedidoRoutes from './routes/pedidos.routes';
-import MetodoPagoRoutes from './routes/metodopago.routes';  
+import  MetodoPagoRoutes  from './routes/metodopago.routes';  
 import metodoEnvioRoutes from './routes/metodoenvio.routes'; 
 import rolesRoutes from './routes/rol.routes';
 import estadoRoutes from './routes/estado.routes';
@@ -20,14 +20,7 @@ const app = express();
 const PORT = process.env.PORT || 443;
 
 // Middleware
-app.use(cors({
-  origin: [
-    "https://nice-sea-05ecb2e10.1.azurestaticapps.net", // Azure frontend
-    "http://localhost:3000", // desarrollo local
-    "http://localhost:443"
-  ],
-  // credentials: true // solo si usas cookies/autenticación
-}));
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -51,6 +44,9 @@ app.use('/api/tarjetas-usuario', tarjetaUsuarioRoutes);
 app.get('/', (_req, res) => {
   res.send('🚀 Bienvenido a TienditaMass API. El backend está corriendo con éxito.');
 });
+
+
+
 
 // Conexión a la base de datos
 AppDataSource.initialize()
